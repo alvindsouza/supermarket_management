@@ -1,0 +1,11 @@
+number, Category
+1,cpu
+2,ram
+3,ssd
+4,disp
+5,psu
+6,gpu
+7,case
+8,input
+9,laptop
+10,Headphones
