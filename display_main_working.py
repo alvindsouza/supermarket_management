@@ -167,15 +167,15 @@ class Functions:
             self.cursor.executemany('''
             INSERT INTO Product (Product_Code, Product_Name, Expiry_Date, Price, Supplier_Code)
             VALUES (%s, %s, %s, %s, %s)
-            ''', data)
+            ''', data) 
             self.db.commit()
 
-    def fetch(self, condition='',fun='employee'):
+    def fetch(self, condition='',fun='employee',optional_condition = ''):
 
         if condition == '':
             self.cursor.execute(f'SELECT * FROM {fun}')
         else:
-            print(f"SELECT * FROM {fun} WHERE {fun +'_name'} LIKE '{'%' + condition + '%'}' order by {fun +'_name'};")
+            print(f"SELECT * FROM {fun} WHERE {fun +'_name'} LIKE '{'%' + condition + '%'}'{optional_condition} order by {fun +'_name'};")
             self.cursor.execute(f"SELECT * FROM {fun} WHERE {fun+'_name'} LIKE '{'%' + condition + '%'}' order by {fun+'_name'}")
         for element in self.cursor.fetchall():
             yield element
@@ -201,8 +201,14 @@ class display(Functions):
         self.logn.resizable(0,0)
         self.prev= ''
         self.current = ''
+        self.cur_condition1=''
+        self.prev_condition1=''
+        self.cur_condition2=''
+        self.prev_condition2=''
         self.logn.protocol('WM_DELETE_WINDOW',self.shutwindow)  
-    
+    def clear_frame(self,frame):
+        for wid in frame.winfo_children():
+            wid.destroy()
     def Login(self):
         found = False
         with open('login.csv', 'r') as f:
@@ -315,9 +321,7 @@ class display(Functions):
 
         CTkButton(master=self.frame, text="Create Account", fg_color='#3b4252', hover_color='#2f6690', font=("Arial Bold", 12), text_color="#ffffff", width=225,command= self.check_pass).pack(anchor="w", pady=(10, 0), padx=(25, 0))
     def inventory(self):
-
-        for wid in self.mainframe.winfo_children():
-            wid.destroy()
+        self.clear_frame(self.mainframe)
         title_frame = CTkFrame(master=self.mainframe, fg_color="transparent")
         title_frame.pack(anchor="n", fill="x",  padx=27, pady=(29, 0))
 
@@ -367,37 +371,37 @@ class display(Functions):
         self.table.edit_row(0, text_color="#fff", hover_color="#2A8C55")
         self.table.pack(expand=True)
     def update_entry(self,condition): 
-        if self.prev != self.search.get():
-            self.current = self.search.get()
-            self.prev = self.current
+        if self.prev != self.search.get() or self.prev_condition1 != self.avail.get() or self.prev_condtition2 != self.shift.get():
+
+            self.current = self.prev = self.search.get()
+            self.cur_condition1 = self.prev_condition1 = self.avail.get()
+            self.cur_condition2 = self.prev_condtition2 = self.shift.get()
+
             if condition == "employee":
                 self.table_data = [['employee_id','employee_name', 'employee_type', 'employee_availability', 'employee_shift_type', 'employee_pay']
                 ]
-                print('this is stupid')
             else:
                 self.table_data = [['Product_Code ', 'Product_Name','Expiry_Date', 'Price','Supplier_Code']]
             for emp in self.database.fetch(self.current,fun=condition):
                 self.table_data.append(list(emp))
-            self.table.destroy()
+                self.table.destroy()
             self.table = CTkTable(master=self.table_frame, values=self.table_data, colors=["#191D32", "#282F44"], header_color="#2A8C55", hover_color="#030616")
             self.table.pack(expand=True)
 
         self.root.after(500,lambda: self.update_entry(condition = condition))  # Update every 1 second
 
-    def manage_employee(self):
+    def add_employee(self):
+        self.new_win = CTkToplevel(self.root)
+        self.new_win.protocol('WM_DELETE_WINDOW',self.shutwindow)
+        self.new_win.resizable(0,0) 
+        self.uni_frame = CTkFrame(master = self.new_win,fg_color = self.widget_color,corner_radius = 30)
+        CTkLabel(master=self.uni_frame, text="Add Employee", font=("Arial Black", 25), text_color="#2A8C55").pack(anchor="nw", pady=(29,0), padx=27)
 
+        CTkLabel(master=self.uni_frame, text="Employee Name", font=("Arial Bold", 17), text_color="#52A476").pack(anchor="nw", pady=(25,0), padx=27)
 
-        for wid in self.mainframe.winfo_children():
-            wid.destroy()
-        self.manage_employee_button.configure(fg_color='#fff', text_color="#2A8C55", hover_color="#eee")  
+        CTkEntry(master=self.uni_frame, fg_color="#F0F0F0", border_width=0).pack(fill="x", pady=(12,0), padx=27, ipady=10)
 
-        CTkLabel(master=self.mainframe, text="Add Employee", font=("Arial Black", 25), text_color="#2A8C55").pack(anchor="nw", pady=(29,0), padx=27)
-
-        CTkLabel(master=self.mainframe, text="Employee Name", font=("Arial Bold", 17), text_color="#52A476").pack(anchor="nw", pady=(25,0), padx=27)
-
-        CTkEntry(master=self.mainframe, fg_color="#F0F0F0", border_width=0).pack(fill="x", pady=(12,0), padx=27, ipady=10)
-
-        grid = CTkFrame(master=self.mainframe, fg_color="transparent")
+        grid = CTkFrame(master=self.uni_frame, fg_color="transparent")
         grid.pack(fill="both", padx=27, pady=(31,0))
 
         CTkLabel(master=grid, text="Contract type", font=("Arial Bold", 17), text_color="#52A476", justify="left").grid(row=0, column=0, sticky="w")
@@ -412,14 +416,30 @@ class display(Functions):
         CTkLabel(master=grid, text="Salary", font=("Arial Bold", 17), text_color="#52A476", justify="left").grid(row=0, column=2, sticky="w")
         CTkEntry(master=grid, fg_color="#F0F0F0", border_width=0).grid(row=3, column=2, sticky="w")
      
-        actions= CTkFrame(master=self.mainframe, fg_color="transparent")
+        actions= CTkFrame(master=self.uni_frame, fg_color="transparent")
         actions.pack(fill="both")
 
         CTkButton(master=actions, text="Back", width=300, fg_color="transparent", font=("Arial Bold", 17), border_color="#2A8C55", hover_color="#eee", border_width=2, text_color="#2A8C55").pack(side="left", anchor="sw", pady=(50,0), padx=(100,24))
         CTkButton(master=actions, text="Create", width=300, font=("Arial Bold", 17), hover_color="#207244", fg_color="#2A8C55", text_color="#fff").pack(side = "left", anchor="se", pady=(30,0), padx=(0,27))
+        self.uni_frame.pack()
+    def remove_employee(self):
+        self.clear_frame(self.mainframe)
+        # self.manage_employee_button.configure(fg_color='#fff', text_color="#2A8C55", hover_color="#eee")  
+
+        CTkLabel(master=self.mainframe, text="Delete Employee", font=("Arial Black", 25), text_color="#2A8C55").pack(anchor="nw", pady=(29,0), padx=27)
+
+        CTkLabel(master=self.mainframe, text="Employee Name or ID22222222222222222222222", font=("Arial Bold", 17), text_color="#52A476").pack(anchor="nw", pady=(25,0), padx=27)
+
+        CTkEntry(master=self.mainframe, fg_color="#F0F0F0", border_width=0).pack(fill="x", pady=(12,0), padx=27, ipady=10)
+
+        actions= CTkFrame(master=self.mainframe, fg_color="transparent")
+        actions.pack(fill="both")
+
+        CTkButton(master=actions, text="Back", width=300, fg_color="transparent", font=("Arial Bold", 17), border_color="#2A8C55", hover_color="#eee", border_width=2, text_color="#2A8C55").pack(side="left", anchor="sw", pady=(50,0), padx=(100,24))
+        CTkButton(master=actions, text="Delete", width=300, font=("Arial Bold", 17), hover_color="#207244", fg_color="#2A8C55", text_color="#fff").pack(side = "left", anchor="se", pady=(30,0), padx=(0,27))
+        
     def settings_clicked(self):
-        for wid in self.mainframe.winfo_children():
-            wid.destroy()
+        self.clear_frame(self.mainframe)
 
         self.settings_button.configure(fg_color='#fff', text_color="#2A8C55", hover_color="#eee")  
 
@@ -436,8 +456,7 @@ class display(Functions):
     def order_clicked(self):
         self.database = Functions("test_db")
         self.database.create_database_if_not_exists()
-        for wid in self.mainframe.winfo_children():
-            wid.destroy()
+        self.clear_frame(self.mainframe)
         title_frame = CTkFrame(master=self.mainframe, fg_color="transparent")
         title_frame.pack(anchor="n", fill="x",  padx=27, pady=(29, 0))
 
@@ -457,7 +476,12 @@ class display(Functions):
 
         CTkLabel(master=orders_metric, text="Available Employees", text_color="#fff", font=("Arial Black", 15)).grid(row=0, column=1, sticky="sw")
         CTkLabel(master=orders_metric, text=str(self.database.fetch_available()[0][0]), text_color="#fff",font=("Arial Black", 15), justify="left").grid(row=1, column=1, sticky="nw", pady=(0,10))
+        
+        
 
+        CTkButton(master=metrics_frame, text="Add Employees", text_color="#fff", font=("Arial Black", 15),fg_color= self.inter_widget_color,image= logistics_img,width=300, height=60,command = self.add_employee ).pack(side = 'left',padx=27)
+       
+        
 
 #SEARCH BAR
 
@@ -478,13 +502,13 @@ class display(Functions):
         ]
         for emp in self.database.fetch():
             self.table_data.append(list(emp))
-        self.update_entry('employee')
         self.table_frame = CTkScrollableFrame(master=self.mainframe, fg_color="transparent")
         self.table_frame.pack(expand=True, fill="both", padx=20, pady=21)
         
         self.table = CTkTable(master=self.table_frame, values=self.table_data, colors=["#191D32", "#282F44"], header_color="#2A8C55", hover_color="#030616")
         self.table.edit_row(0, text_color="#fff", hover_color="#2A8C55")
         self.table.pack(expand=True)
+        self.update_entry('employee')
     def new_app(self):
         self.logn.destroy()
         self.root = CTk()
@@ -528,7 +552,7 @@ class display(Functions):
 
         list_img_data = Image.open("list_icon.png")
         list_img = CTkImage(dark_image=list_img_data, light_image=list_img_data)
-        self.manage_employee_button = CTkButton(master=self.sidebar_frame, image=list_img, text="Manage Employee", fg_color=self.button_color, font=("Arial Bold", 14), hover_color=self.float_color, anchor="w",width=180,command=self.manage_employee)
+        self.manage_employee_button = CTkButton(master=self.sidebar_frame, image=list_img, text="Manage Employee", fg_color=self.button_color, font=("Arial Bold", 14), hover_color=self.float_color, anchor="w",width=180,command=self.add_employee)
         self.manage_employee_button.pack(anchor="center", ipady=5, pady=(16, 0))
         returns_img_data = Image.open("returns_icon.png")
         returns_img = CTkImage(dark_image=returns_img_data, light_image=returns_img_data)
@@ -541,9 +565,6 @@ class display(Functions):
         self.order_clicked()
         self.root.mainloop()
     
-    def clear_frame(self,frame):
-        for wid in frame.winfo_children():
-            wid.destroy()
    
     def shutwindow(self):
         sys.exit()
