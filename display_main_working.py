@@ -47,28 +47,11 @@ class Functions:
                 )
             """)
 
-            employees = [
-            ("Olivia Lee", "full-time", "available", "morning", 22.00),
-            ("Ethan Hall", "part-time", "unavailable", "night", 18.00),
-            ("Lily Patel", "contractor", "available", "evening", 35.00),
-            ("Alexander Brown", "full-time", "available", "morning", 28.00),
-            ("Sophia Martin", "part-time", "unavailable", "night", 19.00),
-            ("Jackson Davis", "contractor", "available", "evening", 38.00),
-            ("Mia White", "full-time", "available", "morning", 25.00),
-            ("Isabella Taylor", "part-time", "unavailable", "night", 20.00),
-            ("Noah Harris", "contractor", "available", "evening", 42.00),
-            ("Charlotte Walker", "full-time", "available", "morning", 30.00),
-            ("Gabriel Jackson", "part-time", "unavailable", "night", 21.00),
-            ("Julia Thompson", "contractor", "available", "evening", 45.00),
-            ("Logan Brooks", "full-time", "available", "flexible", 32.00),
-            ("Ava Lewis", "part-time", "unavailable", "night", 22.00),
-            ("Elijah Hall", "contractor", "available", "night", 48.00),
-            ("Harper Davis", "full-time", "available", "morning", 29.00),
-            ("Landon Martin", "part-time", "unavailable", "night", 23.00),
-            ("Piper Brown", "contractor", "available", "evening", 50.00),
-            ("Riley Taylor", "full-time", "available", "morning", 31.00),
-            ("Savannah White", "part-time", "unavailable", "night", 24.00)
-            ]
+            employees = []
+            with open("csv_emp_data.csv",'r') as f:
+                info = csv.reader(f)
+                for i in info:
+                    employees.append(i)
 
             insert_query = """
                 INSERT INTO employee 
@@ -90,79 +73,11 @@ class Functions:
             ''')
 
             # Data to be inserted
-            data = [ (8147, 'Whole Wheat', '2024-02-20', 2.5, 5, 'S001'),
-                    (3519, 'Brown Sugar', '2024-08-15', 1.8, 2, 'S002'),
-                    (2701, 'Green Tea', '2024-11-10', 3.2, 5, 'S003'),
-                    (9318, 'Almond Milk', '2024-05-25', 4.5, 13, 'S004'),
-                    (1189, 'Quinoa', '2024-09-01', 5.0, 15, 'S005'),
-                    (4672, 'Olive Oil', '2024-03-18', 8.0, 15, 'S001'),
-                    (6192, 'Coconut Oil', '2024-06-22', 7.5, 7, 'S002'),
-                    (8231, 'Apple Cider', '2024-10-15', 6.0, 2, 'S003'),
-                    (2756, 'Banana Bread', '2024-04-12', 3.5, 3, 'S004'),
-                    (9821, 'Granola', '2024-07-20', 4.2, 6, 'S005'),
-                    (1174, 'Protein Powder', '2024-01-15', 15.0, 3, 'S001'),
-                    (6582, 'Peanut Butter', '2024-09-25', 8.5, 12, 'S002'),
-                    (3819, 'Jelly', '2024-05-10', 2.0, 3, 'S003'),
-                    (1928, 'Honey', '2024-11-05', 5.5, 13, 'S004'),
-                    (7421, 'Almond Butter', '2024-03-25', 10.0, 11, 'S005'),
-                    (2684, 'Cashew Nuts', '2024-08-01', 12.0, 5, 'S001'),
-                    (9832, 'Walnuts', '2024-06-15', 11.0, 1, 'S002'),
-                    (1181, 'Pecans', '2024-10-01', 10.5, 1, 'S003'),
-                    (4675, 'Brazil Nuts', '2024-04-20', 9.0, 10, 'S004'),
-                    (6195, 'Pistachios', '2024-07-15', 8.5, 6, 'S005'),
-                    (3511, 'Dried Cran', '2024-02-15', 5.0, 8, 'S001'),
-                    (8142, 'Apricots', '2024-09-10', 4.5, 4, 'S002'),
-                    (2708, 'Prunes', '2024-05-25', 4.0, 6, 'S003'),
-                    (9315, 'Raisins', '2024-11-15', 3.5, 2, 'S004'),
-                    (1186, 'Figs', '2024-03-10', 6.0, 8, 'S005'),
-                    (4678, 'Dates', '2024-08-20', 5.5, 14, 'S001'),
-                    (6198, 'Coconut Flakes', '2024-06-10', 4.2, 6, 'S002'),
-                    (8235, 'Oatmeal', '2024-10-20', 4.0, 12, 'S003'),
-                    (2759, 'Brown Rice', '2024-04-15', 2.5, 11, 'S004'),
-                    (9825, 'Quinoa Flakes', '2024-07-25', 5.0, 11, 'S005'),
-                    (1177, 'Cereal', '2024-01-20', 3.0, 5, 'S001'),
-                    (3822, 'Energy Bars', '2024-05-20', 5.0, 13, 'S003'),
-                    (1929, 'Trail Mix', '2024-11-10', 4.2, 13, 'S004'),
-                    (7423, 'Dried Fruits', '2024-03-15', 6.0, 10, 'S005'),
-                    (2687, 'Nuts Mix', '2024-08-25', 7.5, 7, 'S001'),
-                    (9834, 'Seeds Mix', '2024-06-20', 6.5, 4, 'S002'),
-                    (1183, 'Coffee', '2024-10-25', 8.0, 4, 'S003'),
-                    (4679, 'Tea', '2024-04-25', 7.0, 14, 'S004'),
-                    (6199, 'Chocolate', '2024-07-20', 9.0, 2, 'S005'),
-                    (3513, 'Baking Powder', '2024-02-25', 2.0, 4, 'S001'),
-                    (8144, 'Baking Soda', '2024-09-20', 1.8, 12, 'S002'),
-                    (2710, 'Salt', '2024-05-30', 1.5, 9, 'S003'),
-                    (9317, 'Sugar', '2024-11-20', 2.2, 4, 'S004'),
-                    (1188, 'Flour', '2024-03-20', 3.0, 11, 'S005'),
-                    (4681, 'Yeast', '2024-08-30', 2.5, 1, 'S001'),
-                    (6201, 'Vanilla', '2024-06-25', 3.5, 9, 'S002'),
-                    (8237, 'Cinnamon', '2024-10-30', 4.0, 9, 'S003'),
-                    (2761, 'Nutmeg', '2024-04-30', 3.8, 5, 'S004'),
-                    (9827, 'Ginger', '2024-07-30', 4.2, 3, 'S005'),
-                    (1179, 'Turmeric', '2024-01-25', 3.5, 14, 'S001'),
-                    (6587, 'Paprika', '2024-09-25', 4.0, 10, 'S002'),
-                    (3824, 'Garlic Powder', '2024-05-30', 3.2, 3, 'S003'),
-                    (1931, 'Onion Powder', '2024-11-25', 3.0, 7, 'S004'),
-                    (7425, 'Chili Powder', '2024-03-25', 3.5, 3, 'S005'),
-                    (2690, 'Cumin', '2024-08-30', 3.8, 6, 'S001'),
-                    (9836, 'Coriander', '2024-06-30', 4.2, 9, 'S002'),
-                    (1185, 'Basil', '2024-10-30', 4.5, 5, 'S003'),
-                    (4683, 'Oregano', '2024-04-30', 4.0, 2, 'S004'),
-                    (6203, 'Thyme', '2024-07-30', 4.2, 7, 'S005'),
-                    (3515, 'Rosemary', '2024-02-28', 4.5, 7, 'S001'),
-                    (8146, 'Sage', '2024-09-28', 4.2, 13, 'S002'),
-                    (2712, 'Parsley', '2024-05-31', 4.0, 4, 'S003'),
-                    (9319, 'Dill', '2024-11-28', 4.2, 15, 'S004'),
-                    (1190, 'Bay Leaves', '2024-03-28', 4.5, 5, 'S005'),
-                    (1011, 'Ground Beef', '2024-03-15', 6.99, 15, 'M001'),
-                    (1022, 'Boneless Chicken', '2024-04-10', 5.99, 12, 'M002'),
-                    (1033, 'Pork Sausages', '2024-05-05', 7.49, 7, 'M003'),
-                    (1044, 'Ribeye Steaks', '2024-06-01', 12.99, 7, 'M004'),
-                    (1055, 'Salmon Fillets', '2024-07-15', 14.99, 13, 'M005'),
-                    (1066, 'Bacon Strips', '2024-08-10', 4.99, 1, 'M001'),
-                    (1077, 'Turkey Breast', '2024-09-05', 6.49, 5, 'M002'),
-                    (1088, 'Lamb Chops', '2024-10-01', 10.99, 13, 'M003'),
-                    (1099, 'Chicken Wings', '2024-11-15', 5.99, 9, 'M004')]
+            data = []
+            with open("inventory_data.csv",'r') as f:
+                info = csv.reader(f)
+                for i in info:
+                    data.append(i)
             # Insert data into the inventory table
             self.cursor.executemany('''
             INSERT INTO Product (Product_Code, Product_Name, Expiry_Date, Price, Supplier_Code)
@@ -170,20 +85,45 @@ class Functions:
             ''', data) 
             self.db.commit()
 
-    def fetch(self, condition='',fun='employee',optional_condition = ''):
+    def fetch(self, condition=None,fun='employee',optional_condition = None):
 
-        if condition == '':
+        if condition == None:
             self.cursor.execute(f'SELECT * FROM {fun}')
-        else:
-            print(f"SELECT * FROM {fun} WHERE {fun +'_name'} LIKE '{'%' + condition + '%'}'{optional_condition} order by {fun +'_name'};")
+        elif optional_condition == None:
             self.cursor.execute(f"SELECT * FROM {fun} WHERE {fun+'_name'} LIKE '{'%' + condition + '%'}' order by {fun+'_name'}")
+        else:
+            self.cursor.execute(f"SELECT * FROM {fun} WHERE {fun+'_name'} LIKE '{'%' + condition + '%'}' and  order by {fun+'_name'}")
         for element in self.cursor.fetchall():
             yield element
 
     def fetch_available(self):
         self.cursor.execute("select Count(*) from employee where employee_availability = 'available'")
         return self.cursor.fetchall()
+    def remove_emp_sql(self,values):
+        if type(values) == str:
+            self.cursor.execute("SELECT * FROM employees WHERE employee_name = ?", (employee_name,))
+            row = self.cursor.fetchone()
 
+            if row:
+                # Row exists, delete it
+                self.cursor.execute("DELETE FROM employees WHERE employee_name = ?", (employee_name,))
+                self.db.commit()
+                print(f"Employee '{employee_name}' deleted.")
+            else:
+                # Row does not exist
+                print(f"Employee '{employee_name}' not found.")
+        else:
+            self.cursor.execute("SELECT * FROM employees WHERE employee_name = ?", (employee_name,))
+            row = self.cursor.fetchone()
+
+            if row:
+                # Row exists, delete it
+                self.cursor.execute("DELETE FROM employees WHERE employee_name = ?", (employee_name,))
+                self.db.commit()
+                print(f"Employee '{employee_name}' deleted.")
+            else:
+                # Row does not exist
+                print(f"Employee '{employee_name}' not found.")
 
 
 class display(Functions):
@@ -197,7 +137,7 @@ class display(Functions):
         self.dttxt_color = '#1a1a1a' 
         self.secondary_widget_color = '#36414c'
         self.inter_widget_color = '#241d25'
-        self.logn.title("SuperMarket Management System")
+        self.logn.title("Login")
         self.logn.resizable(0,0)
         self.prev= ''
         self.current = ''
@@ -205,7 +145,7 @@ class display(Functions):
         self.prev_condition1=''
         self.cur_condition2=''
         self.prev_condition2=''
-        self.logn.protocol('WM_DELETE_WINDOW',self.shutwindow)  
+        self.logn.protocol('WM_DELETE_WINDOW',self.logn.destroy)  
     def clear_frame(self,frame):
         for wid in frame.winfo_children():
             wid.destroy()
@@ -392,8 +332,10 @@ class display(Functions):
 
     def add_employee(self):
         self.new_win = CTkToplevel(self.root)
-        self.new_win.protocol('WM_DELETE_WINDOW',self.shutwindow)
+        self.new_win.protocol('WM_DELETE_WINDOW',self.new_win.destroy)
         self.new_win.resizable(0,0) 
+        self.new_win.title('Add Employee')
+        self.new_win.wm_transient(self.root)
         self.uni_frame = CTkFrame(master = self.new_win,fg_color = self.widget_color,corner_radius = 30)
         CTkLabel(master=self.uni_frame, text="Add Employee", font=("Arial Black", 25), text_color="#2A8C55").pack(anchor="nw", pady=(29,0), padx=27)
 
@@ -405,39 +347,45 @@ class display(Functions):
         grid.pack(fill="both", padx=27, pady=(31,0))
 
         CTkLabel(master=grid, text="Contract type", font=("Arial Bold", 17), text_color="#52A476", justify="left").grid(row=0, column=0, sticky="w")
-        self.avail =  CTkComboBox(master=grid, width=125,state= 'readonly',values=["Contract Type",'full-time', 'part-time', 'contractor'], button_color="#2A8C55", border_color="#2A8C55", border_width=2, button_hover_color="#207244",dropdown_hover_color="#207244" , dropdown_fg_color="#2A8C55", dropdown_text_color="#fff")
-        self.avail.set('Contract Type')
-        self.avail.grid(row=3, column=0 ,sticky="w",pady=5)
+        self.avail_add =  CTkComboBox(master=grid, width=125,state= 'readonly',values=["Contract Type",'full-time', 'part-time', 'contractor'], button_color="#2A8C55", border_color="#2A8C55", border_width=2, button_hover_color="#207244",dropdown_hover_color="#207244" , dropdown_fg_color="#2A8C55", dropdown_text_color="#fff")
+        self.avail_add.set('Contract Type')
+        self.avail_add.grid(row=3, column=0 ,sticky="w",pady=5)
 
         CTkLabel(master=grid, text="Shift Type", font=("Arial Bold", 17), text_color="#52A476", justify="left").grid(row=0, column=1, sticky="w",padx = (150,250))
-        self.shift =  CTkComboBox(master=grid, width=125,state= 'readonly', values=["Shift", "Morning", "Evening", "Night"], button_color="#2A8C55", border_color="#2A8C55", border_width=2, button_hover_color="#207244",dropdown_hover_color="#207244" , dropdown_fg_color="#2A8C55", dropdown_text_color="#fff")
-        self.shift.set("Shift")
-        self.shift.grid(row=3, column=1 , sticky="w",pady=5,padx = 150)
+        self.shift_add =  CTkComboBox(master=grid, width=125,state= 'readonly', values=["Shift", "Morning", "Evening", "Night"], button_color="#2A8C55", border_color="#2A8C55", border_width=2, button_hover_color="#207244",dropdown_hover_color="#207244" , dropdown_fg_color="#2A8C55", dropdown_text_color="#fff")
+        self.shift_add.set("Shift")
+        self.shift_add.grid(row=3, column=1 , sticky="w",pady=5,padx = 150)
         CTkLabel(master=grid, text="Salary", font=("Arial Bold", 17), text_color="#52A476", justify="left").grid(row=0, column=2, sticky="w")
         CTkEntry(master=grid, fg_color="#F0F0F0", border_width=0).grid(row=3, column=2, sticky="w")
      
         actions= CTkFrame(master=self.uni_frame, fg_color="transparent")
         actions.pack(fill="both")
 
-        CTkButton(master=actions, text="Back", width=300, fg_color="transparent", font=("Arial Bold", 17), border_color="#2A8C55", hover_color="#eee", border_width=2, text_color="#2A8C55").pack(side="left", anchor="sw", pady=(50,0), padx=(100,24))
-        CTkButton(master=actions, text="Create", width=300, font=("Arial Bold", 17), hover_color="#207244", fg_color="#2A8C55", text_color="#fff").pack(side = "left", anchor="se", pady=(30,0), padx=(0,27))
+        CTkButton(master=actions, text="Back", width=300, fg_color="transparent", font=("Arial Bold", 17), border_color="#2A8C55", hover_color="#eee", border_width=2, text_color="#2A8C55").pack(side="left", anchor="sw", pady=(50,30), padx=(100,24))
+        CTkButton(master=actions, text="Create", width=300, font=("Arial Bold", 17), hover_color="#207244", fg_color="#2A8C55", text_color="#fff").pack(side = "left", anchor="se", pady=(30,30), padx=(0,100))
         self.uni_frame.pack()
     def remove_employee(self):
-        self.clear_frame(self.mainframe)
+        self.new_win = CTkToplevel(self.root)
+        self.new_win.protocol('WM_DELETE_WINDOW',self.new_win.destroy)
+        self.new_win.resizable(0,0) 
+        self.new_win.title('Remove Employee')
+        self.new_win.wm_transient(self.root)
+        self.uni_frame = CTkFrame(master = self.new_win,fg_color = self.widget_color,corner_radius = 30)
+
         # self.manage_employee_button.configure(fg_color='#fff', text_color="#2A8C55", hover_color="#eee")  
 
-        CTkLabel(master=self.mainframe, text="Delete Employee", font=("Arial Black", 25), text_color="#2A8C55").pack(anchor="nw", pady=(29,0), padx=27)
+        CTkLabel(master=self.uni_frame, text="Delete Employee", font=("Arial Black", 25), text_color="#2A8C55").pack(anchor="nw", pady=(29,0), padx=27)
 
-        CTkLabel(master=self.mainframe, text="Employee Name or ID22222222222222222222222", font=("Arial Bold", 17), text_color="#52A476").pack(anchor="nw", pady=(25,0), padx=27)
+        CTkLabel(master=self.uni_frame, text="Employee Name or ID", font=("Arial Bold", 17), text_color="#52A476").pack(anchor="nw", pady=(25,0), padx=27)
 
-        CTkEntry(master=self.mainframe, fg_color="#F0F0F0", border_width=0).pack(fill="x", pady=(12,0), padx=27, ipady=10)
+        CTkEntry(master=self.uni_frame, fg_color="#F0F0F0", border_width=0).pack(fill="x", pady=(12,0), padx=27, ipady=10)
 
-        actions= CTkFrame(master=self.mainframe, fg_color="transparent")
+        actions= CTkFrame(master=self.uni_frame, fg_color="transparent")
         actions.pack(fill="both")
 
-        CTkButton(master=actions, text="Back", width=300, fg_color="transparent", font=("Arial Bold", 17), border_color="#2A8C55", hover_color="#eee", border_width=2, text_color="#2A8C55").pack(side="left", anchor="sw", pady=(50,0), padx=(100,24))
-        CTkButton(master=actions, text="Delete", width=300, font=("Arial Bold", 17), hover_color="#207244", fg_color="#2A8C55", text_color="#fff").pack(side = "left", anchor="se", pady=(30,0), padx=(0,27))
-        
+        CTkButton(master=actions, text="Back", width=300, fg_color="transparent", font=("Arial Bold", 17), border_color="#2A8C55", hover_color="#eee", border_width=2, text_color="#2A8C55").pack(side="left", anchor="sw",pady=(30,30), padx=(100,24))
+        CTkButton(master=actions, text="Delete", width=300, font=("Arial Bold", 17), hover_color="#207244", fg_color="#2A8C55", text_color="#fff").pack(side = "left", anchor="se",pady=(30,30), padx=(0,100))
+        self.uni_frame.pack()
     def settings_clicked(self):
         self.clear_frame(self.mainframe)
 
@@ -465,7 +413,7 @@ class display(Functions):
         metrics_frame = CTkFrame(master=self.mainframe, fg_color="transparent")
         metrics_frame.pack(anchor="n", fill="x",  padx=27, pady=(36, 0))
 
-        orders_metric = CTkFrame(master=metrics_frame, fg_color=self.inter_widget_color, width=300, height=60)
+        orders_metric = CTkFrame(master=metrics_frame, fg_color=self.inter_widget_color, width=250, height=60)
         orders_metric.grid_propagate(0)
         orders_metric.pack(side="left")
 
@@ -479,9 +427,10 @@ class display(Functions):
         
         
 
-        CTkButton(master=metrics_frame, text="Add Employees", text_color="#fff", font=("Arial Black", 15),fg_color= self.inter_widget_color,image= logistics_img,width=300, height=60,command = self.add_employee ).pack(side = 'left',padx=27)
+        CTkButton(master=metrics_frame, text="Add Employees", text_color="#fff", font=("Arial Black", 15),fg_color= self.inter_widget_color,width=250, height=60,command = self.add_employee ).pack(side = 'left',padx=10)
        
-        
+        CTkButton(master=metrics_frame, text="Remove Employees", text_color="#fff", font=("Arial Black", 15),fg_color= self.inter_widget_color,width=250, height=60,command = self.remove_employee).pack(side = 'left')
+       
 
 #SEARCH BAR
 
@@ -509,12 +458,15 @@ class display(Functions):
         self.table.edit_row(0, text_color="#fff", hover_color="#2A8C55")
         self.table.pack(expand=True)
         self.update_entry('employee')
+    def purchase(self):
+        pass 
     def new_app(self):
         self.logn.destroy()
         self.root = CTk()
         self.root.geometry("1050x650")
         self.root.resizable(0,0)
-        self.root.protocol('WM_DELETE_WINDOW',self.shutwindow)
+        self.root.title('SuperMarket Management System')
+        self.root.protocol('WM_DELETE_WINDOW',self.root.destroy)
         theme = 'let'
         if theme == 'light':
             self.mainframe = CTkFrame(master=self.root, fg_color=self.widget_color,  width=820, height=650, corner_radius=0)
@@ -565,11 +517,6 @@ class display(Functions):
         self.order_clicked()
         self.root.mainloop()
     
-   
-    def shutwindow(self):
-        sys.exit()
-        self.root.destroy()
-        self.logn.destroy() 
     def run (self) :
         self.new_app()
         # self.intial_login()
