@@ -6,6 +6,7 @@ import csv
 import mysql.connector as ms
 import sys
 
+
 def CenterWindowToDisplay(Screen: CTk, width: int, height: int, scale_factor: float = 1.0):
     """Centers the window to the main display/monitor"""
     screen_width = Screen.winfo_screenwidth()
@@ -14,7 +15,6 @@ def CenterWindowToDisplay(Screen: CTk, width: int, height: int, scale_factor: fl
     y = int(((screen_height/2) - (height/1.5)) * scale_factor)
     return f"{width}x{height}+{x}+{y}"
 
-import mysql.connector as ms
 
 class Functions:
     def __init__(self, database):
@@ -52,6 +52,7 @@ class Functions:
                 info = csv.reader(f)
                 for i in info:
                     employees.append(i)
+            print(employees)
 
             insert_query = """
                 INSERT INTO employee 
@@ -64,10 +65,11 @@ class Functions:
             self.db.commit()
             self.cursor.execute('''
             CREATE TABLE IF NOT EXISTS Product (
-                Product_Code INT PRIMARY KEY,
+                Product_Code INT PRIMARY KEY AUTO_INCREMENT,
                 Product_Name VARCHAR(50),
                 Expiry_Date DATE,
                 Price DECIMAL(5, 2),
+                Quantity INT,
                 Supplier_Code VARCHAR(10)
             )
             ''')
@@ -80,22 +82,37 @@ class Functions:
                     data.append(i)
             # Insert data into the inventory table
             self.cursor.executemany('''
-            INSERT INTO Product (Product_Code, Product_Name, Expiry_Date, Price, Supplier_Code)
+            INSERT INTO Product (Product_Name, Expiry_Date, Price, Quantity, Supplier_Code)
             VALUES (%s, %s, %s, %s, %s)
             ''', data) 
             self.db.commit()
 
-    def fetch(self, condition=None,fun='employee',optional_condition = None):
-
-        if condition == None:
-            self.cursor.execute(f'SELECT * FROM {fun}')
-        elif optional_condition == None:
-            self.cursor.execute(f"SELECT * FROM {fun} WHERE {fun+'_name'} LIKE '{'%' + condition + '%'}' order by {fun+'_name'}")
+    def fetch(self, condition=None):
+        if condition[1] == 'Availability' and condition[2] == 'Shift' :
+            self.cursor.execute(f"SELECT * FROM employee WHERE employee_name LIKE '{'%' + condition[0] + '%'}' order by employee_name")
+        elif condition[1] != 'Availability' and condition[2] == 'Shift' :
+            self.cursor.execute(f"SELECT * FROM employee WHERE employee_name LIKE '{'%' + condition[0] + '%'}' and employee_availability = '{condition[1]}' order by employee_name")
+        elif  condition[1] == 'Availability' and condition[2] != 'Shift' :
+            self.cursor.execute(f"SELECT * FROM employee WHERE employee_name LIKE '{'%' + condition[0] + '%'}'and employee_shift_type = '{condition[2]}'  order by employee_name")
         else:
-            self.cursor.execute(f"SELECT * FROM {fun} WHERE {fun+'_name'} LIKE '{'%' + condition + '%'}' and  order by {fun+'_name'}")
+            self.cursor.execute(f"SELECT * FROM employee WHERE employee_name LIKE '{'%' + condition[0] + '%'}'and employee_availability = '{condition[1]}' and employee_shift_type = '{condition[2]}' order by employee_name")
         for element in self.cursor.fetchall():
             yield element
-
+    def fetch_inv(self):
+        if condition[1] == 'Availability' and condition[2] == 'Shift' :
+            print(condition)
+            self.cursor.execute(f"SELECT * FROM employee WHERE employee_name LIKE '{'%' + condition[0] + '%'}' order by employee_name")
+        elif condition[1] != 'Availability' and condition[2] == 'Shift' :
+            print(condition)
+            self.cursor.execute(f"SELECT * FROM employee WHERE employee_name LIKE '{'%' + condition[0] + '%'}' and employee_availability = '{condition[1]}' order by employee_name")
+        elif  condition[1] == 'Availability' and condition[2] != 'Shift' :
+            print(condition)
+            self.cursor.execute(f"SELECT * FROM employee WHERE employee_name LIKE '{'%' + condition[0] + '%'}'and employee_shift_type = '{condition[2]}'  order by employee_name")
+        else:
+            print(condition)
+            self.cursor.execute(f"SELECT * FROM employee WHERE employee_name LIKE '{'%' + condition[0] + '%'}'and employee_availability = '{condition[1]}' and employee_shift_type = '{condition[2]}' order by employee_name")
+        for element in self.cursor.fetchall():
+            yield element
     def fetch_available(self):
         self.cursor.execute("select Count(*) from employee where employee_availability = 'available'")
         return self.cursor.fetchall()
@@ -165,10 +182,10 @@ class display(Functions):
                 self.error.configure(text="*Email entered does not \n have an account", text_color="#d11149", anchor="w", justify="left", font=("Arial Bold", 15) )
     def intial_login(self):
         self.clear_frame(self.logn)
-        side_img_data = Image.open("side-img.png")
-        email_icon_data = Image.open("email-icon.png")
-        password_icon_data = Image.open("password-icon.png")
-        google_icon_data = Image.open("google-icon.png")
+        side_img_data = Image.open("images/side-img.png")
+        email_icon_data = Image.open("images/email-icon.png")
+        password_icon_data = Image.open("images/password-icon.png")
+        google_icon_data = Image.open("images/google-icon.png")
 
         side_img = CTkImage(dark_image=side_img_data, light_image=side_img_data, size=(300, 480))
         email_icon = CTkImage(dark_image=email_icon_data, light_image=email_icon_data, size=(20,20))
@@ -226,10 +243,10 @@ class display(Functions):
     def create_account(self):
         self.clear_frame(self.logn)
 
-        side_img_data = Image.open("background_img2.png")
-        email_icon_data = Image.open("email-icon.png")
-        password_icon_data = Image.open("password-icon.png")
-        google_icon_data = Image.open("google-icon.png")
+        side_img_data = Image.open("images/background_img2.png")
+        email_icon_data = Image.open("images/email-icon.png")
+        password_icon_data = Image.open("images/password-icon.png")
+        google_icon_data = Image.open("images/google-icon.png")
 
         side_img = CTkImage(dark_image=side_img_data, light_image=side_img_data, size=(314, 417))
         email_icon = CTkImage(dark_image=email_icon_data, light_image=email_icon_data, size=(20,20))
@@ -274,7 +291,7 @@ class display(Functions):
         orders_metric.grid_propagate(0)
         orders_metric.pack(side="left")
 
-        logitics_img_data = Image.open("logistics_icon.png")
+        logitics_img_data = Image.open("images/logistics_icon.png")
         logistics_img = CTkImage(light_image=logitics_img_data, dark_image=logitics_img_data, size=(43, 43))
 
         CTkLabel(master=orders_metric, image=logistics_img, text="").grid(row=0, column=0, rowspan=2, padx=(12,5), pady=10)
@@ -322,9 +339,9 @@ class display(Functions):
                 ]
             else:
                 self.table_data = [['Product_Code ', 'Product_Name','Expiry_Date', 'Price','Supplier_Code']]
-            for emp in self.database.fetch(self.current,fun=condition):
+            for emp in self.database.fetch((self.current,self.cur_condition1,self.cur_condition2)):
                 self.table_data.append(list(emp))
-                self.table.destroy()
+            self.table.destroy()
             self.table = CTkTable(master=self.table_frame, values=self.table_data, colors=["#191D32", "#282F44"], header_color="#2A8C55", hover_color="#030616")
             self.table.pack(expand=True)
 
@@ -417,7 +434,7 @@ class display(Functions):
         orders_metric.grid_propagate(0)
         orders_metric.pack(side="left")
 
-        logitics_img_data = Image.open("logistics_icon.png")
+        logitics_img_data = Image.open("images/logistics_icon.png")
         logistics_img = CTkImage(light_image=logitics_img_data, dark_image=logitics_img_data, size=(43, 43))
 
         CTkLabel(master=orders_metric, image=logistics_img, text="").grid(row=0, column=0, rowspan=2, padx=(12,5), pady=10)
@@ -449,8 +466,7 @@ class display(Functions):
         self.table_data = [
             ['employee_id','employee_name', 'employee_type', 'employee_availability', 'employee_shift_type', 'employee_pay']
         ]
-        for emp in self.database.fetch():
-            self.table_data.append(list(emp))
+
         self.table_frame = CTkScrollableFrame(master=self.mainframe, fg_color="transparent")
         self.table_frame.pack(expand=True, fill="both", padx=20, pady=21)
         
@@ -467,6 +483,7 @@ class display(Functions):
         self.root.resizable(0,0)
         self.root.title('SuperMarket Management System')
         self.root.protocol('WM_DELETE_WINDOW',self.root.destroy)
+        Functions('test_db')
         theme = 'let'
         if theme == 'light':
             self.mainframe = CTkFrame(master=self.root, fg_color=self.widget_color,  width=820, height=650, corner_radius=0)
@@ -484,33 +501,33 @@ class display(Functions):
         self.sidebar_frame.pack_propagate(0)
         self.sidebar_frame.pack(fill="y", anchor="w", side="left")
         self.sidebar_frame.place(x= 10,y=10)
-        # logo_img_data = Image.open("logo.png")
+        # logo_img_data = Image.open("images/logo.png")
         # logo_img = CTkImage(dark_image=logo_img_data, light_image=logo_img_data, size=(77.68, 85.42))
 
         # CTkLabel(master=sidebar_frame, text="", image=logo_img).pack(pady=(38, 0), anchor="center")
 
-        person_img_data = Image.open("person_icon.png")
+        person_img_data = Image.open("images/person_icon.png")
         person_img = CTkImage(dark_image=person_img_data, light_image=person_img_data, size=(60, 60))
         CTkButton(master=self.sidebar_frame, image=person_img, text="Account", fg_color=self.button_color, font=("Arial Bold", 20), hover_color=self.float_color, anchor="w",corner_radius=30,width=180).pack(anchor="center", ipady=5, pady=(16, 0))
-        analytics_img_data = Image.open("analytics_icon.png")
+        analytics_img_data = Image.open("images/analytics_icon.png")
         analytics_img = CTkImage(dark_image=analytics_img_data, light_image=analytics_img_data)
 
         CTkButton(master=self.sidebar_frame, image=analytics_img, text="", fg_color=self.button_color, font=("Arial Bold", 14), hover_color=self.float_color, anchor="w",width=180).pack(anchor="center", ipady=5, pady=(60, 0))
 
-        package_img_data = Image.open("package_icon.png")
+        package_img_data = Image.open("images/package_icon.png")
         package_img = CTkImage(dark_image=package_img_data, light_image=package_img_data)
         self.order_button = CTkButton(master=self.sidebar_frame, image=package_img, text="Employees", fg_color=self.button_color, font=("Arial Bold", 14), hover_color=self.float_color, anchor="w",width=180,command=self.order_clicked)
         self.order_button.pack(anchor="center", ipady=5, pady=(16, 0))
 
-        list_img_data = Image.open("list_icon.png")
+        list_img_data = Image.open("images/list_icon.png")
         list_img = CTkImage(dark_image=list_img_data, light_image=list_img_data)
         self.manage_employee_button = CTkButton(master=self.sidebar_frame, image=list_img, text="Manage Employee", fg_color=self.button_color, font=("Arial Bold", 14), hover_color=self.float_color, anchor="w",width=180,command=self.add_employee)
         self.manage_employee_button.pack(anchor="center", ipady=5, pady=(16, 0))
-        returns_img_data = Image.open("returns_icon.png")
+        returns_img_data = Image.open("images/returns_icon.png")
         returns_img = CTkImage(dark_image=returns_img_data, light_image=returns_img_data)
         CTkButton(master=self.sidebar_frame, image=returns_img, text="Inventory", fg_color=self.button_color, font=("Arial Bold", 14), hover_color=self.float_color, anchor="w",width=180,command= self.inventory).pack(anchor="center", ipady=5, pady=(16, 0))
 
-        settings_img_data = Image.open("settings_icon.png")
+        settings_img_data = Image.open("images/settings_icon.png")
         settings_img = CTkImage(dark_image=settings_img_data, light_image=settings_img_data)
         self.settings_button = CTkButton(master=self.sidebar_frame, image=settings_img, text="Settings", fg_color=self.button_color, font=("Arial Bold", 14), hover_color=self.float_color, anchor="w",width=180,command=self.settings_clicked)
         self.settings_button.pack(anchor="center", ipady=5, pady=(16, 0))
@@ -519,7 +536,4 @@ class display(Functions):
     
     def run (self) :
         self.new_app()
-        # self.intial_login()
-        # self.logn.mainloop()
-
 display().run()
