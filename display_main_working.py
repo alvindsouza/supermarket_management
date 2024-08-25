@@ -48,11 +48,10 @@ class Functions:
             """)
 
             employees = []
-            with open("csv_emp_data.csv",'r') as f:
+            with open("csv_files/csv_emp_data.csv",'r') as f:
                 info = csv.reader(f)
                 for i in info:
                     employees.append(i)
-            print(employees)
 
             insert_query = """
                 INSERT INTO employee 
@@ -76,7 +75,7 @@ class Functions:
 
             # Data to be inserted
             data = []
-            with open("inventory_data.csv",'r') as f:
+            with open("csv_files/inventory_data.csv",'r') as f:
                 info = csv.reader(f)
                 for i in info:
                     data.append(i)
@@ -98,49 +97,42 @@ class Functions:
             self.cursor.execute(f"SELECT * FROM employee WHERE employee_name LIKE '{'%' + condition[0] + '%'}'and employee_availability = '{condition[1]}' and employee_shift_type = '{condition[2]}' order by employee_name")
         for element in self.cursor.fetchall():
             yield element
-    def fetch_inv(self):
-        if condition[1] == 'Availability' and condition[2] == 'Shift' :
-            print(condition)
-            self.cursor.execute(f"SELECT * FROM employee WHERE employee_name LIKE '{'%' + condition[0] + '%'}' order by employee_name")
-        elif condition[1] != 'Availability' and condition[2] == 'Shift' :
-            print(condition)
-            self.cursor.execute(f"SELECT * FROM employee WHERE employee_name LIKE '{'%' + condition[0] + '%'}' and employee_availability = '{condition[1]}' order by employee_name")
-        elif  condition[1] == 'Availability' and condition[2] != 'Shift' :
-            print(condition)
-            self.cursor.execute(f"SELECT * FROM employee WHERE employee_name LIKE '{'%' + condition[0] + '%'}'and employee_shift_type = '{condition[2]}'  order by employee_name")
+    def fetch_inv(self,condition=None):
+        if condition[1] == 'Order by' and condition[2] == 'Supplier Code' :
+            self.cursor.execute(f"SELECT * FROM product WHERE Product_Name LIKE '{'%' + condition[0] + '%'}' order by Product_Name")
+        elif condition[1] != 'Order by' and condition[2] == 'Supplier Code' :
+            self.cursor.execute(f"SELECT * FROM product WHERE Product_Name LIKE '{'%' + condition[0] + '%'}'  order by {condition[1]}")
+        elif  condition[1] == 'Order by' and condition[2] != 'Supplier Code' :
+            self.cursor.execute(f"SELECT * FROM product WHERE Product_Name LIKE '{'%' + condition[0] + '%'}' and Supplier_Code = '{condition[2]}'  order by Product_Name")
         else:
-            print(condition)
-            self.cursor.execute(f"SELECT * FROM employee WHERE employee_name LIKE '{'%' + condition[0] + '%'}'and employee_availability = '{condition[1]}' and employee_shift_type = '{condition[2]}' order by employee_name")
+            self.cursor.execute(f"SELECT * FROM product WHERE Product_Name LIKE '{'%' + condition[0] + '%'}' and Supplier_Code = '{condition[2]}' order by {condition[1]}")
         for element in self.cursor.fetchall():
             yield element
     def fetch_available(self):
         self.cursor.execute("select Count(*) from employee where employee_availability = 'available'")
         return self.cursor.fetchall()
-    def remove_emp_sql(self,values):
+    def remove_emp_sql(self,values=None):
         if type(values) == str:
-            self.cursor.execute("SELECT * FROM employees WHERE employee_name = ?", (employee_name,))
+            self.cursor.execute("SELECT * FROM employee WHERE employee_name = ?", (values,))
             row = self.cursor.fetchone()
 
             if row:
                 # Row exists, delete it
-                self.cursor.execute("DELETE FROM employees WHERE employee_name = ?", (employee_name,))
+                self.cursor.execute("DELETE FROM employee WHERE employee_name = ?", (values,))
                 self.db.commit()
-                print(f"Employee '{employee_name}' deleted.")
             else:
-                # Row does not exist
-                print(f"Employee '{employee_name}' not found.")
+                self.error.configure(text="*Employee name \n is incorrect", text_color="#d11149", anchor="w", justify="left", font=("Arial Bold", 15))
         else:
-            self.cursor.execute("SELECT * FROM employees WHERE employee_name = ?", (employee_name,))
+            self.cursor.execute("SELECT * FROM employee WHERE employee_id = ?", (values,))
             row = self.cursor.fetchone()
 
             if row:
                 # Row exists, delete it
-                self.cursor.execute("DELETE FROM employees WHERE employee_name = ?", (employee_name,))
+                self.cursor.execute("DELETE FROM employee WHERE employee_id  = ?", (values,))
                 self.db.commit()
-                print(f"Employee '{employee_name}' deleted.")
             else:
                 # Row does not exist
-                print(f"Employee '{employee_name}' not found.")
+                self.error.configure(text="*Employee ID \n is incorrect", text_color="#d11149", anchor="w", justify="left", font=("Arial Bold", 15))
 
 
 class display(Functions):
@@ -168,7 +160,7 @@ class display(Functions):
             wid.destroy()
     def Login(self):
         found = False
-        with open('login.csv', 'r') as f:
+        with ("login.csv", 'r') as f:
             reader = csv.reader(f) 
             for row in reader:
                 if row[0] == self.log_email.get():
@@ -223,7 +215,7 @@ class display(Functions):
             elif len(a)<8:
                 self.error.configure(text="*Password length should \n be at least 8", text_color="#d11149", anchor="w", justify="left", font=("Arial Bold", 15))
             else:
-                with open("login.csv", "r") as f:
+                with open("csv_files/login.csv", "r") as f:
                     reader = csv.reader(f)
                     sucess = True
                 
@@ -235,7 +227,7 @@ class display(Functions):
 
                         # call login_page using dialog box
                     if sucess ==  True:             
-                        with open("login.csv", "a+",newline= '') as f:
+                        with open("csv_files/login.csv", "a+",newline= '') as f:
                             writer = csv.writer(f)
                             writer.writerow([self.email.get(),a])
                         self.intial_login()
@@ -305,28 +297,25 @@ class display(Functions):
         search_container = CTkFrame(master=self.mainframe, height=50, fg_color=self.secondary_widget_color)
         search_container.pack(fill="x", pady=(45, 0), padx=27)
 
-        self.search = CTkEntry(master=search_container, width=305, placeholder_text="Search Employee", border_color="#2A8C55", border_width=2)
+        self.search = CTkEntry(master=search_container, width=305, placeholder_text="Search Products", border_color="#2A8C55", border_width=2)
         self.search.pack(side="left", padx=(13, 0), pady=15)
-        self.avail =  CTkComboBox(master=search_container, width=125,state= 'readonly',values=["Availability", "Available", "Unavailable"], button_color="#2A8C55", border_color="#2A8C55", border_width=2, button_hover_color="#207244",dropdown_hover_color="#207244" , dropdown_fg_color="#2A8C55", dropdown_text_color="#fff")
-        self.avail.set('Availability')
+        self.avail =  CTkComboBox(master=search_container, width=125,state= 'readonly',values=["Order by", "Expiry_Date", "Quantity","Product_Code"], button_color="#2A8C55", border_color="#2A8C55", border_width=2, button_hover_color="#207244",dropdown_hover_color="#207244" , dropdown_fg_color="#2A8C55", dropdown_text_color="#fff")
+        self.avail.set('Order by')
         self.avail.pack(side="left", padx=(13, 0), pady=15)
-        self.shift =  CTkComboBox(master=search_container, width=125,state= 'readonly', values=["Shift", "Morning", "Evening", "Night"], button_color="#2A8C55", border_color="#2A8C55", border_width=2, button_hover_color="#207244",dropdown_hover_color="#207244" , dropdown_fg_color="#2A8C55", dropdown_text_color="#fff")
-        self.shift.set("Shift")
+        self.shift =  CTkComboBox(master=search_container, width=125,state= 'readonly', values=["Supplier Code", "S001", "S002","S003","S004","S005"], button_color="#2A8C55", border_color="#2A8C55", border_width=2, button_hover_color="#207244",dropdown_hover_color="#207244" , dropdown_fg_color="#2A8C55", dropdown_text_color="#fff")
+        self.shift.set("Supplier Code")
         self.shift.pack(side="left", padx=(13, 0), pady=15)
 
         self.table_data = [
             ['Product_Code ', 'Product_Name','Expiry_Date', 'Price','Quantity','Supplier_Code']
         ]
-        for emp in self.database.fetch(fun='Product'):
-            self.table_data.append(list(emp))
-
-        self.update_entry(condition = 'product')
         self.table_frame = CTkScrollableFrame(master=self.mainframe, fg_color="transparent")
         self.table_frame.pack(expand=True, fill="both", padx=20, pady=21)
         
         self.table = CTkTable(master=self.table_frame, values=self.table_data, colors=["#191D32", "#282F44"], header_color="#2A8C55", hover_color="#030616")
         self.table.edit_row(0, text_color="#fff", hover_color="#2A8C55")
         self.table.pack(expand=True)
+        self.update_entry(condition = 'product')
     def update_entry(self,condition): 
         if self.prev != self.search.get() or self.prev_condition1 != self.avail.get() or self.prev_condtition2 != self.shift.get():
 
@@ -337,10 +326,12 @@ class display(Functions):
             if condition == "employee":
                 self.table_data = [['employee_id','employee_name', 'employee_type', 'employee_availability', 'employee_shift_type', 'employee_pay']
                 ]
+                for emp in self.database.fetch((self.current,self.cur_condition1,self.cur_condition2)):
+                    self.table_data.append(list(emp))
             else:
-                self.table_data = [['Product_Code ', 'Product_Name','Expiry_Date', 'Price','Supplier_Code']]
-            for emp in self.database.fetch((self.current,self.cur_condition1,self.cur_condition2)):
-                self.table_data.append(list(emp))
+                self.table_data = [['Product_Code ', 'Product_Name','Expiry_Date', 'Price','Quantity','Supplier_Code']]
+                for product in self.database.fetch_inv((self.current,self.cur_condition1,self.cur_condition2)):
+                    self.table_data.append(list(product))
             self.table.destroy()
             self.table = CTkTable(master=self.table_frame, values=self.table_data, colors=["#191D32", "#282F44"], header_color="#2A8C55", hover_color="#030616")
             self.table.pack(expand=True)
@@ -378,31 +369,32 @@ class display(Functions):
         actions= CTkFrame(master=self.uni_frame, fg_color="transparent")
         actions.pack(fill="both")
 
-        CTkButton(master=actions, text="Back", width=300, fg_color="transparent", font=("Arial Bold", 17), border_color="#2A8C55", hover_color="#eee", border_width=2, text_color="#2A8C55").pack(side="left", anchor="sw", pady=(50,30), padx=(100,24))
         CTkButton(master=actions, text="Create", width=300, font=("Arial Bold", 17), hover_color="#207244", fg_color="#2A8C55", text_color="#fff").pack(side = "left", anchor="se", pady=(30,30), padx=(0,100))
         self.uni_frame.pack()
     def remove_employee(self):
         self.new_win = CTkToplevel(self.root)
         self.new_win.protocol('WM_DELETE_WINDOW',self.new_win.destroy)
         self.new_win.resizable(0,0) 
+        self.new_win.geometry('400x300')
         self.new_win.title('Remove Employee')
         self.new_win.wm_transient(self.root)
-        self.uni_frame = CTkFrame(master = self.new_win,fg_color = self.widget_color,corner_radius = 30)
-
+        self.uni_frame = CTkFrame(master = self.new_win,fg_color = self.widget_color,corner_radius = 30, width=250)
+        self.uni_frame.pack(padx=(10,10),pady=(10,10),fill="y")
         # self.manage_employee_button.configure(fg_color='#fff', text_color="#2A8C55", hover_color="#eee")  
 
         CTkLabel(master=self.uni_frame, text="Delete Employee", font=("Arial Black", 25), text_color="#2A8C55").pack(anchor="nw", pady=(29,0), padx=27)
 
         CTkLabel(master=self.uni_frame, text="Employee Name or ID", font=("Arial Bold", 17), text_color="#52A476").pack(anchor="nw", pady=(25,0), padx=27)
 
-        CTkEntry(master=self.uni_frame, fg_color="#F0F0F0", border_width=0).pack(fill="x", pady=(12,0), padx=27, ipady=10)
+        self.emp =CTkEntry(master=self.uni_frame, fg_color="#F0F0F0", border_width=0)
+        self.emp.pack(fill="x", pady=(12,0), padx=27, ipady=10)
+        val = self.emp.get()
 
-        actions= CTkFrame(master=self.uni_frame, fg_color="transparent")
-        actions.pack(fill="both")
+        self.error = CTkLabel(master=self.new_win, text=" \n ",font=("Arial Bold", 15))
+        self.error.pack(anchor="w", padx=(25, 0),pady=(20,5))
 
-        CTkButton(master=actions, text="Back", width=300, fg_color="transparent", font=("Arial Bold", 17), border_color="#2A8C55", hover_color="#eee", border_width=2, text_color="#2A8C55").pack(side="left", anchor="sw",pady=(30,30), padx=(100,24))
-        CTkButton(master=actions, text="Delete", width=300, font=("Arial Bold", 17), hover_color="#207244", fg_color="#2A8C55", text_color="#fff").pack(side = "left", anchor="se",pady=(30,30), padx=(0,100))
-        self.uni_frame.pack()
+        CTkButton(master=self.uni_frame, text="Remove", width=300, font=("Arial Bold", 17), hover_color="#207244", fg_color="#2A8C55", text_color="#fff",command = lambda: self.remove_emp_sql(val)).pack(anchor="s",pady=(30,30), padx=(100,100))
+
     def settings_clicked(self):
         self.clear_frame(self.mainframe)
 
@@ -475,7 +467,20 @@ class display(Functions):
         self.table.pack(expand=True)
         self.update_entry('employee')
     def purchase(self):
-        pass 
+        self.clear_frame(self.mainframe)
+        title_frame = CTkFrame(master=self.mainframe, fg_color="transparent")
+        title_frame.pack(anchor="n", fill="x",  padx=27, pady=(29, 0))
+
+        CTkLabel(master=title_frame, text="Purchase", font=("Arial Black", 25), text_color="#2A8C55").pack(anchor="nw", side="left")
+
+        metrics_frame = CTkFrame(master=self.mainframe, fg_color="transparent")
+        metrics_frame.pack(anchor="n", fill="x",  padx=27, pady=(36, 0))
+
+
+        search_container = CTkFrame(master=self.mainframe, height=50, fg_color=self.secondary_widget_color)
+        search_container.pack(fill="x", pady=(45, 0), padx=27)
+
+
     def new_app(self):
         self.logn.destroy()
         self.root = CTk()
