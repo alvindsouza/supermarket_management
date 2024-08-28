@@ -111,6 +111,21 @@ class Functions:
     def fetch_available(self):
         self.cursor.execute("select Count(*) from employee where employee_availability = 'available'")
         return self.cursor.fetchall()
+    def remove_emp_sql(self,values=None):
+        values = eval(values)
+        self.cursor.execute(f"SELECT * FROM employee WHERE employee_id = '{values}'")
+        row = self.cursor.fetchone()
+
+        if row:
+            # Row exists, delete it
+            self.cursor.execute(f"DELETE FROM employee WHERE employee_id  = '{values}'")
+            self.db.commit()
+        else:
+            # Row does not exist
+            display.error.configure(text="*Employee ID \n is incorrect", text_color="#d11149", anchor="w", justify="left", font=("Arial Bold", 15))
+
+
+
 
 class display(Functions):
     def __init__(self):
@@ -208,26 +223,7 @@ class display(Functions):
                             writer = csv.writer(f)
                             writer.writerow([self.email.get(),a])
                         self.intial_login()
-    def remove_emp_sql(self):
-        try:
-    
-            values = eval(self.emp.get())
-            self.database.cursor.execute(f"SELECT * FROM employee WHERE employee_id = '{values}'")
-            row = self.database.cursor.fetchone()
-
-            if row:
-                # Row exists, delete it
-                self.database.cursor.execute(f"DELETE FROM employee WHERE employee_id  = '{values}'")
-                self.database.db.commit()
-                self.error.configure(text="Employee Successfully removed", text_color=self.dttxt_color, anchor="w", justify="left", font=("Arial Bold", 15))
-            else:
-                # Row does not exist
-                self.error.configure(text="*Employee ID is incorrect", text_color="#d11149", anchor="w", justify="left", font=("Arial Bold", 15))
-                # self.error.pack()
-        except:
-            self.error.configure(text="*Employee ID is incorrect", text_color="#d11149", anchor="w", justify="left", font=("Arial Bold", 15))
-            # self.error.pack()
-        
+                                
     def create_account(self):
         self.clear_frame(self.logn)
 
@@ -333,6 +329,19 @@ class display(Functions):
             self.table.pack(expand=True)
 
         self.root.after(500,lambda: self.update_entry(condition = condition))  # Update every 1 second
+    def refresh(self,condition): 
+        if condition == "employee":
+            self.table_data = [['employee_id','employee_name', 'employee_type', 'employee_availability', 'employee_shift_type', 'employee_pay']
+            ]
+            for emp in self.database.fetch((self.current,self.cur_condition1,self.cur_condition2)):
+                self.table_data.append(list(emp))
+        else:
+            self.table_data = [['Product_Code ', 'Product_Name','Expiry_Date', 'Price','Quantity','Supplier_Code']]
+            for product in self.database.fetch_inv((self.current,self.cur_condition1,self.cur_condition2)):
+                self.table_data.append(list(product))
+        self.table.destroy()
+        self.table = CTkTable(master=self.table_frame, values=self.table_data, colors=["#191D32", "#282F44"], header_color="#2A8C55", hover_color="#030616")
+        self.table.pack(expand=True)
 
     def add_employee(self):
         self.new_win = CTkToplevel(self.root)
@@ -369,9 +378,9 @@ class display(Functions):
         self.uni_frame.pack()
     def remove_employee(self):
         self.new_win = CTkToplevel(self.root)
-        self.new_win.protocol('WM_DELETE_WINDOW',lambda: (self.refresh('employee'),self.new_win.destroy()))
+        # self.new_win.protocol('WM_DELETE_WINDOW',lambda: (self.refresh('employee'),self.new_win.destroy()))
         self.new_win.resizable(0,0) 
-        self.new_win.geometry('400x310')
+        self.new_win.geometry('400x300')
         self.new_win.title('Remove Employee')
         self.new_win.wm_transient(self.root)
         self.uni_frame = CTkFrame(master = self.new_win,fg_color = self.widget_color,corner_radius = 30, width=250)
@@ -380,29 +389,17 @@ class display(Functions):
 
         CTkLabel(master=self.uni_frame, text="Delete Employee", font=("Arial Black", 25), text_color="#2A8C55").pack(anchor="nw", pady=(29,0), padx=27)
 
-        CTkLabel(master=self.uni_frame, text="Employee ID", font=("Arial Bold", 17), text_color="#52A476").pack(anchor="nw", pady=(25,0), padx=27)
+        CTkLabel(master=self.uni_frame, text="Employee Name or ID", font=("Arial Bold", 17), text_color="#52A476").pack(anchor="nw", pady=(25,0), padx=27)
 
         self.emp =CTkEntry(master=self.uni_frame, fg_color="#F0F0F0", border_width=0)
         self.emp.pack(fill="x", pady=(12,0), padx=27, ipady=10)
 
 
-        self.error = CTkLabel(master=self.uni_frame,text="",font=("Arial Bold", 15),justify="left",anchor= 'w')
+        self.error = CTkLabel(master=self.new_win, text=" \n ",font=("Arial Bold", 15))
         self.error.pack(anchor="w", padx=(25, 0),pady=(20,5))
 
-        CTkButton(master=self.uni_frame, text="Remove", width=300, font=("Arial Bold", 17), hover_color="#207244", fg_color="#2A8C55", text_color="#fff",command = self.remove_emp_sql).pack(anchor="s",pady=(5,20), padx=(100,100))
-    def refresh(self,condition): 
-        if condition == "employee":
-            self.table_data = [['employee_id','employee_name', 'employee_type', 'employee_availability', 'employee_shift_type', 'employee_pay']
-            ]
-            for emp in self.database.fetch((self.current,self.cur_condition1,self.cur_condition2)):
-                self.table_data.append(list(emp))
-        else:
-            self.table_data = [['Product_Code ', 'Product_Name','Expiry_Date', 'Price','Quantity','Supplier_Code']]
-            for product in self.database.fetch_inv((self.current,self.cur_condition1,self.cur_condition2)):
-                self.table_data.append(list(product))
-        self.table.destroy()
-        self.table = CTkTable(master=self.table_frame, values=self.table_data, colors=["#191D32", "#282F44"], header_color="#2A8C55", hover_color="#030616")
-        self.table.pack(expand=True)
+        CTkButton(master=self.uni_frame, text="Remove", width=300, font=("Arial Bold", 17), hover_color="#207244", fg_color="#2A8C55", text_color="#fff",command = lambda: self.database.remove_emp_sql(self.emp.get())).pack(anchor="s",pady=(30,30), padx=(100,100))
+
     def settings_clicked(self):
         self.clear_frame(self.mainframe)
 
