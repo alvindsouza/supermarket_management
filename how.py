@@ -1,14 +1,31 @@
 import customtkinter as ctk
+from PIL import Image
+import pywinstyles
 
-# Create the main window
+# Initialize the main window
 root = ctk.CTk()
+root.geometry("800x600")
 
-# Create a CTkEntry widget
-entry = ctk.CTkEntry(root, placeholder_text="Enter text here")
-entry.pack(padx=20, pady=20)
+# Load the background image using CTkImage
+bg_image = ctk.CTkImage(light_image=Image.open("images/side-img.png"), size=(800, 600))
 
-# Insert data into the CTkEntry widget
-entry.insert(0, "Hello, CustomTkinter!")
+# Create a label to display the background image
+bg_label = ctk.CTkLabel(root, image=bg_image)
+bg_label.place(relwidth=1, relheight=1)
 
-# Run the main loop
+# Create a frame on top of the background
+frame = ctk.CTkFrame(root, width=400, height=300, corner_radius=20, fg_color="white")
+frame.place(relx=0.5, rely=0.5, anchor="center")
+
+# Set the opacity of the frame using pywinstyles
+pywinstyles.set_opacity(frame, value=0.5)  # 0.5 for 50% transparency
+
+# Add some widgets to the frame (optional)
+label = ctk.CTkLabel(frame, text="This is a frame")
+label.pack(pady=20)
+
+button = ctk.CTkButton(frame, text="Click Me")
+button.pack(pady=20)
+
+# Run the application
 root.mainloop()

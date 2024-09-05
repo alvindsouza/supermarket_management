@@ -1,7 +1,7 @@
 from customtkinter import *
 import tkinter
 from CTkTable import CTkTable
-from PIL import Image
+from PIL import ImageTk,Image
 import csv
 import mysql.connector as ms
 import sys
@@ -115,7 +115,11 @@ class Functions:
 class display(Functions):
     def __init__(self):
         self.logn  = CTk()
-        self.logn.geometry(CenterWindowToDisplay(self.logn,600, 417, self.logn._get_window_scaling()))
+        self.logn.geometry(CenterWindowToDisplay(self.logn,600, 417))
+
+        set_appearance_mode("System")  # Modes: system (default), light, dark
+        set_default_color_theme("green")  # Themes: blue (default), dark-blue, green
+
         self.widget_color = '#2e3440'
         self.float_color = '#d8dee9'#same as widget_color
         self.float_color = '#2f6690'
@@ -226,8 +230,36 @@ class display(Functions):
                 # self.error.pack()
         except:
             self.error.configure(text="*Employee ID is incorrect", text_color="#d11149", anchor="w", justify="left", font=("Arial Bold", 15))
-            # self.error.pack()
-        
+    def add_prod_sql(self):
+        print(f'''
+        INSERT INTO Product (Product_Name, Expiry_Date, Price, Quantity, Supplier_Code)
+        VALUES ({(self.emp_name.get())},{str(self.con_type.get())},'available', {str(self.shift_type.get())}, {int(self.salary.get())})
+        ''')
+        self.database.cursor.execute(f'''
+        INSERT INTO employee (employee_name, employee_type, employee_availability, employee_shift_type, employee_pay) 
+        VALUES ('{(self.emp_name.get())}','{str(self.con_type.get())}','available', '{str(self.shift_type.get())}', {int(self.salary.get())})
+        ''')
+        self.database.db.commit()
+        self.error.configure(text="Employee Successfully Added", text_color=self.dttxt_color, anchor="w", justify="left", font=("Arial Bold", 15))
+
+
+    def add_employee_sql(self):
+
+        self.database.cursor.execute(f'''
+        INSERT INTO employee (employee_name, employee_type, employee_availability, employee_shift_type, employee_pay) 
+        VALUES ('{(self.emp_name.get())}','{str(self.con_type.get())}','available', '{str(self.shift_type.get())}', {int(self.salary.get())})
+        ''')
+        self.database.db.commit()
+        self.error.configure(text="Employee Successfully Added", text_color=self.dttxt_color, anchor="w", justify="left", font=("Arial Bold", 15))
+
+    def add_item_sql(self):
+        # self.database.cursor.execute(f'''
+        #     INSERT INTO Product (Product_Name, Expiry_Date, Price, Quantity, Supplier_Code)
+        #     VALUES ({}, {}, {}, {}, {})
+        #     ''', data) 
+        self.database.db.commit()
+        pass
+
     def create_account(self):
         self.clear_frame(self.logn)
 
@@ -265,6 +297,7 @@ class display(Functions):
         self.error.pack(anchor="w", padx=(25, 0),pady=(10,5))
 
         CTkButton(master=self.frame, text="Create Account", fg_color='#3b4252', hover_color='#2f6690', font=("Arial Bold", 12), text_color="#ffffff", width=225,command= self.check_pass).pack(anchor="w", pady=(10, 0), padx=(25, 0))
+    
     def inventory(self):
         self.clear_frame(self.mainframe)
         title_frame = CTkFrame(master=self.mainframe, fg_color="transparent")
@@ -301,7 +334,7 @@ class display(Functions):
         self.shift =  CTkComboBox(master=search_container, width=125,state= 'readonly', values=["Supplier Code", "S001", "S002","S003","S004","S005"], button_color="#2A8C55", border_color="#2A8C55", border_width=2, button_hover_color="#207244",dropdown_hover_color="#207244" , dropdown_fg_color="#2A8C55", dropdown_text_color="#fff")
         self.shift.set("Supplier Code")
         self.shift.pack(side="left", padx=(13, 0), pady=15)
-
+        CTkButton(master=metrics_frame, text="Add Product", text_color="#fff", font=("Arial Black", 15),fg_color= self.inter_widget_color,width=250, height=60,command = self.add_product ).pack(side = 'left',padx=10)
         self.table_data = [
             ['Product_Code ', 'Product_Name','Expiry_Date', 'Price','Quantity','Supplier_Code']
         ]
@@ -333,10 +366,45 @@ class display(Functions):
             self.table.pack(expand=True)
 
         self.root.after(500,lambda: self.update_entry(condition = condition))  # Update every 1 second
-
-    def add_employee(self):
+    def add_product(self):
         self.new_win = CTkToplevel(self.root)
         self.new_win.protocol('WM_DELETE_WINDOW',self.new_win.destroy)
+        self.new_win.resizable(0,0) 
+        self.new_win.title('Add Product')
+        self.new_win.wm_transient(self.root)
+        self.uni_frame = CTkFrame(master = self.new_win,fg_color = self.widget_color,corner_radius = 30)
+        CTkLabel(master=self.uni_frame, text="Add Product", font=("Arial Black", 25), text_color="#2A8C55").pack(anchor="nw", pady=(29,0), padx=27)
+
+        CTkLabel(master=self.uni_frame, text="Product Name", font=("Arial Bold", 17), text_color="#52A476").pack(anchor="nw", pady=(25,0), padx=27)
+
+        self.prod_name  = CTkEntry(master=self.uni_frame, fg_color="#F0F0F0", border_width=0,text_color="#000000")
+        self.prod_name.pack(fill="x", pady=(12,0), padx=27, ipady=10)
+
+        CTkLabel(master=self.uni_frame, text="Expiry_Date", font=("Arial Bold", 17), text_color="#52A476").pack(anchor="nw", pady=(25,0), padx=27)
+
+        self.exp_date  = CTkEntry(master=self.uni_frame, fg_color="#F0F0F0", border_width=0,text_color="#000000")
+        self.exp_date.pack(fill="x", pady=(12,0), padx=27, ipady=10)
+
+        CTkLabel(master=self.uni_frame, text="Price", font=("Arial Bold", 17), text_color="#52A476").pack(anchor="nw", pady=(25,0), padx=27)
+
+        self.price  = CTkEntry(master=self.uni_frame, fg_color="#F0F0F0", border_width=0,text_color="#000000")
+        self.price.pack(fill="x", pady=(12,0), padx=27, ipady=10)
+        
+        CTkLabel(master=self.uni_frame, text="Quantity", font=("Arial Bold", 17), text_color="#52A476").pack(anchor="nw", pady=(25,0), padx=27)
+
+        self.prod_quantity  = CTkEntry(master=self.uni_frame, fg_color="#F0F0F0", border_width=0,text_color="#000000")
+        self.prod_quantity.pack(fill="x", pady=(12,0), padx=27, ipady=10)
+
+        CTkLabel(master=self.uni_frame, text="Supplier Code", font=("Arial Bold", 17), text_color="#52A476").pack(anchor="nw", pady=(25,0), padx=27)
+
+        self.sup_code  = CTkEntry(master=self.uni_frame, fg_color="#F0F0F0", border_width=0,text_color="#000000")
+        self.sup_code.pack(fill="x", pady=(12,0), padx=27, ipady=10)
+
+        CTkButton(master=self.uni_frame, text="Create", width=300, font=("Arial Bold", 17), hover_color="#207244", fg_color="#2A8C55", text_color="#fff",command= self.add_employee_sql).pack(pady=(30,30))
+        self.uni_frame.pack()
+    def add_employee(self):
+        self.new_win = CTkToplevel(self.root)
+        self.new_win.protocol('WM_DELETE_WINDOW',lambda: (self.refresh('employee'),self.new_win.destroy()))
         self.new_win.resizable(0,0) 
         self.new_win.title('Add Employee')
         self.new_win.wm_transient(self.root)
@@ -345,28 +413,32 @@ class display(Functions):
 
         CTkLabel(master=self.uni_frame, text="Employee Name", font=("Arial Bold", 17), text_color="#52A476").pack(anchor="nw", pady=(25,0), padx=27)
 
-        CTkEntry(master=self.uni_frame, fg_color="#F0F0F0", border_width=0).pack(fill="x", pady=(12,0), padx=27, ipady=10)
+        self.emp_name  = CTkEntry(master=self.uni_frame, fg_color="#F0F0F0", border_width=0,text_color="#000000")
+        self.emp_name.pack(fill="x", pady=(12,0), padx=27, ipady=10)
 
         grid = CTkFrame(master=self.uni_frame, fg_color="transparent")
         grid.pack(fill="both", padx=27, pady=(31,0))
 
         CTkLabel(master=grid, text="Contract type", font=("Arial Bold", 17), text_color="#52A476", justify="left").grid(row=0, column=0, sticky="w")
-        self.avail_add =  CTkComboBox(master=grid, width=125,state= 'readonly',values=["Contract Type",'full-time', 'part-time', 'contractor'], button_color="#2A8C55", border_color="#2A8C55", border_width=2, button_hover_color="#207244",dropdown_hover_color="#207244" , dropdown_fg_color="#2A8C55", dropdown_text_color="#fff")
-        self.avail_add.set('Contract Type')
-        self.avail_add.grid(row=3, column=0 ,sticky="w",pady=5)
+        self.con_type =  CTkComboBox(master=grid, width=125,state= 'readonly',values=["Contract Type",'full-time', 'part-time', 'contractor'], button_color="#2A8C55", border_color="#2A8C55", border_width=2, button_hover_color="#207244",dropdown_hover_color="#207244" , dropdown_fg_color="#2A8C55", dropdown_text_color="#fff")
+        self.con_type.set('Contract Type')
+        self.con_type.grid(row=3, column=0 ,sticky="w",pady=5)
 
         CTkLabel(master=grid, text="Shift Type", font=("Arial Bold", 17), text_color="#52A476", justify="left").grid(row=0, column=1, sticky="w",padx = (150,250))
-        self.shift_add =  CTkComboBox(master=grid, width=125,state= 'readonly', values=["Shift", "Morning", "Evening", "Night"], button_color="#2A8C55", border_color="#2A8C55", border_width=2, button_hover_color="#207244",dropdown_hover_color="#207244" , dropdown_fg_color="#2A8C55", dropdown_text_color="#fff")
-        self.shift_add.set("Shift")
-        self.shift_add.grid(row=3, column=1 , sticky="w",pady=5,padx = 150)
+        self.shift_type =  CTkComboBox(master=grid, width=125,state= 'readonly', values=["Shift", "Morning", "Evening", "Night"], button_color="#2A8C55", border_color="#2A8C55", border_width=2, button_hover_color="#207244",dropdown_hover_color="#207244" , dropdown_fg_color="#2A8C55", dropdown_text_color="#fff")
+        self.shift_type.set("Shift")
+        self.shift_type.grid(row=3, column=1 , sticky="w",pady=5,padx = 150)
         CTkLabel(master=grid, text="Salary", font=("Arial Bold", 17), text_color="#52A476", justify="left").grid(row=0, column=2, sticky="w")
-        CTkEntry(master=grid, fg_color="#F0F0F0", border_width=0).grid(row=3, column=2, sticky="w")
-     
+        self.salary = CTkEntry(master=grid, fg_color="#F0F0F0", border_width=0,text_color="#000000")
+        self.salary.grid(row=3, column=2, sticky="w")
+        self.error = CTkLabel(master=self.uni_frame,text="",font=("Arial Bold", 15),justify="left",anchor= 'w')
+        self.error.pack(anchor="w", padx=(25, 0),pady=(20,5))
         actions= CTkFrame(master=self.uni_frame, fg_color="transparent")
         actions.pack(fill="both")
 
-        CTkButton(master=actions, text="Create", width=300, font=("Arial Bold", 17), hover_color="#207244", fg_color="#2A8C55", text_color="#fff").pack(side = "left", anchor="se", pady=(30,30), padx=(0,100))
+        CTkButton(master=actions, text="Create", width=300, font=("Arial Bold", 17), hover_color="#207244", fg_color="#2A8C55", text_color="#fff",command= self.add_employee_sql).pack(pady=(30,30))
         self.uni_frame.pack()
+    
     def remove_employee(self):
         self.new_win = CTkToplevel(self.root)
         self.new_win.protocol('WM_DELETE_WINDOW',lambda: (self.refresh('employee'),self.new_win.destroy()))
@@ -382,7 +454,7 @@ class display(Functions):
 
         CTkLabel(master=self.uni_frame, text="Employee ID", font=("Arial Bold", 17), text_color="#52A476").pack(anchor="nw", pady=(25,0), padx=27)
 
-        self.emp =CTkEntry(master=self.uni_frame, fg_color="#F0F0F0", border_width=0)
+        self.emp =CTkEntry(master=self.uni_frame, fg_color="#F0F0F0", border_width=0,text_color="#000000")
         self.emp.pack(fill="x", pady=(12,0), padx=27, ipady=10)
 
 
