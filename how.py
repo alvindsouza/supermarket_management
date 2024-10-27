@@ -1,31 +1,17 @@
-import customtkinter as ctk
-from PIL import Image
-import pywinstyles
+from customtkinter import *
+from CTkTable import CTkTable
 
-# Initialize the main window
-root = ctk.CTk()
-root.geometry("800x600")
+# Create a window
+root = CTk()
 
-# Load the background image using CTkImage
-bg_image = ctk.CTkImage(light_image=Image.open("images/side-img.png"), size=(800, 600))
+# Create a frame to hold the table and buttons
+table_frame = CTkFrame(root)
+table_frame.pack(fill='both', expand=True)
 
-# Create a label to display the background image
-bg_label = ctk.CTkLabel(root, image=bg_image)
-bg_label.place(relwidth=1, relheight=1)
+# Sample data for the table
+table_data = [['Product_Code ', 'Product_Name', 'Price','button'], ['001', 'Product 1', 10,CTkButton(table_frame,text = 'fail').pack()], ['002', 'Product 2', 20,CTkButton(table_frame,text = 'fail').pack()]]
+# Create a table
+table = CTkTable(master=table_frame, values=table_data, colors=["#191D32", "#282F44"], header_color="#2A8C55", hover_color="#030616", width=200)
+table.pack()
 
-# Create a frame on top of the background
-frame = ctk.CTkFrame(root, width=400, height=300, corner_radius=20, fg_color="white")
-frame.place(relx=0.5, rely=0.5, anchor="center")
-
-# Set the opacity of the frame using pywinstyles
-pywinstyles.set_opacity(frame, value=0.5)  # 0.5 for 50% transparency
-
-# Add some widgets to the frame (optional)
-label = ctk.CTkLabel(frame, text="This is a frame")
-label.pack(pady=20)
-
-button = ctk.CTkButton(frame, text="Click Me")
-button.pack(pady=20)
-
-# Run the application
 root.mainloop()
