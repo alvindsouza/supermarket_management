@@ -5,8 +5,6 @@ from PIL import ImageTk,Image
 import csv
 import mysql.connector as ms
 import sys
-
-
 def CenterWindowToDisplay(Screen: CTk, width: int, height: int, scale_factor: float = 1.0):
     """Centers the window to the main display/monitor"""
     screen_width = Screen.winfo_screenwidth()
@@ -14,8 +12,6 @@ def CenterWindowToDisplay(Screen: CTk, width: int, height: int, scale_factor: fl
     x = int(((screen_width/2) - (width/2)) * scale_factor)
     y = int(((screen_height/2) - (height/1.5)) * scale_factor)
     return f"{width}x{height}+{x}+{y}"
-
-
 class Functions:
     def __init__(self, database):
         self.database = database
@@ -117,7 +113,7 @@ class display(Functions):
         self.logn  = CTk()
         self.logn.geometry(CenterWindowToDisplay(self.logn,600, 417))
 
-        set_appearance_mode("System")  # Modes: system (default), light, dark
+        set_appearance_mode("default")  # Modes: system (default), light, dark
       
 
         self.widget_color = '#2e3440'
@@ -272,8 +268,6 @@ class display(Functions):
         ''')
         self.database.db.commit()
         self.error.configure(text="Employee Successfully Added", text_color=self.dttxt_color, anchor="w", justify="left", font=("Arial Bold", 15))
-
-
     def create_account(self):
         self.clear_frame(self.logn)
 
@@ -321,7 +315,6 @@ class display(Functions):
 
         metrics_frame = CTkFrame(master=self.mainframe, fg_color="transparent")
         metrics_frame.pack(anchor="n", fill="x",  padx=27, pady=(36, 0))
-#SEARCH BAR
 
         search_container = CTkFrame(master=self.mainframe, height=50, fg_color=self.secondary_widget_color)
         search_container.pack(fill="x", pady=(45, 0), padx=27)
@@ -474,8 +467,6 @@ class display(Functions):
 
         self.prod =CTkEntry(master=self.uni_frame, fg_color="#F0F0F0", border_width=0,text_color="#000000")
         self.prod.pack(fill="x", pady=(12,0), padx=27, ipady=10)
-
-
         self.error = CTkLabel(master=self.uni_frame,text="",font=("Arial Bold", 15),justify="left",anchor= 'w')
         self.error.pack(anchor="w", padx=(25, 0),pady=(20,5))
 
@@ -498,8 +489,6 @@ class display(Functions):
 
         self.emp =CTkEntry(master=self.uni_frame, fg_color="#F0F0F0", border_width=0,text_color="#000000")
         self.emp.pack(fill="x", pady=(12,0), padx=27, ipady=10)
-
-
         self.error = CTkLabel(master=self.uni_frame,text="",font=("Arial Bold", 15),justify="left",anchor= 'w')
         self.error.pack(anchor="w", padx=(25, 0),pady=(20,5))
 
@@ -518,33 +507,110 @@ class display(Functions):
         self.table = CTkTable(master=self.table_frame, values=self.table_data, colors=["#191D32", "#282F44"], header_color="#2A8C55", hover_color="#030616")
         self.table.pack(expand=True)
     def billing(self):
+        self.bill_items={}
         self.root.after_cancel(self.run_search)
         self.clear_frame(self.mainframe)
 
         self.prev = 'test'
-        title_frame = CTkFrame(master=self.mainframe, fg_color="transparent")
-        title_frame.pack(anchor="n", fill="x",  padx=27, pady=(29, 0))
+        title_frame = CTkFrame(master=self.mainframe, fg_color="transparent",width = 200)
+        
+        title_frame.pack(anchor="n", fill="x",  padx=(27,0), pady=(29, 0))
+        
 
         CTkLabel(master=title_frame, text="Billing", font=("Arial Black", 25), text_color="#2A8C55").pack(anchor="nw", side="left")
+        CTkButton(title_frame, text="Add Bill",width= 200,height = 30,command = self.bill_print).pack(anchor="ne", side="right",padx=100,fill = 'y',pady = 10)
+        search_box = CTkFrame(master=self.mainframe, height=500,width = 350,fg_color="transparent")
+        search_box.pack(expand=True,side ='left',anchor = 'w',pady=(45, 0),padx=(27,0))
 
-        search_container = CTkFrame(master=self.mainframe, height=50,width = 20,fg_color=self.secondary_widget_color)
-        search_container.pack(anchor = 'w',pady=(45, 0), padx=27)
+        search_container = CTkFrame(master=search_box, height=50,width = 20,fg_color=self.secondary_widget_color)
+        search_container.pack(anchor = 'w',pady=(45, 0))
 
-        self.search = CTkEntry(master=search_container, width=370, placeholder_text="Search Products", border_color="#2A8C55")
-        self.search.pack(anchor ='w', padx=(13, 13), pady=15)      
+        self.search = CTkEntry(master=search_container, width=350, placeholder_text="Search Products", border_color="#2A8C55")
+        self.search.pack(anchor ='w', padx=13, pady=15)      
         self.table_data = [
             ['Product_Code ', 'Product_Name','Price']
         ]
-        self.bill_frame = CTkFrame(master=self.mainframe, height=500,width = 20,fg_color=self.secondary_widget_color) 
-        self.bill_frame.pack(anchor = 'e',pady=(45, 0), fill='x',padx=27)
-        self.mini_frame = CTkFrame(master=self.bill_frame, height=300,width = 200) 
-        CTkLabel(master=self.mini_frame, text="Bill", font=("Arial Black", 25), text_color="#2A8C55").pack(side="left")
-
-        self.mini_frame.pack(expand=True,side = 'right',pady=(45, 0),padx=(0,27),fill = 'both')
+        self.bill_frame = CTkFrame(master=search_box, height=400,width = 400,fg_color='transparent') 
+        self.bill_frame.pack(anchor = 'w',pady=(45, 0))
         self.table_frame = CTkScrollableFrame(master=self.bill_frame, fg_color="transparent",width = 400,height = 400)
-        self.table_frame.pack(expand=True,anchor= 'w')
+        self.table_frame.pack(expand=True,anchor= 'w',side = 'left',fill='both')
+        
+        self.mini_frame = CTkFrame(master=self.mainframe, height=450,fg_color=self.secondary_widget_color) 
+        # self.mini_frame.pack_propagate(False) 
+        # self.mini_frame.grid_propagate(False)
+      
+        
+        CTkLabel(master=self.mini_frame, text="Bill Counter", font=("Arial Black", 25), text_color="#2A8C55").grid(row = 0 ,column = 0,padx= 20,pady= (20,0))
+        
+        self.mini_frame.pack(expand=True,anchor='nw',side = 'left',padx=(0,27),fill='both')
         
         self.update_bill()
+    def add_to_bill(self,condition = None,element = None):
+        if self.table_data != None:
+            if condition == None:
+
+                #save price as a val in dict
+
+                if element in self.bill_items.keys():
+                    self.bill_items[element][0] += 1
+                    self.bill_items[element][2] += self.bill_items[element][1]
+                    self.bill_items[element][3].configure(text=element + f' ({self.bill_items[element][0]}) '+ str(self.bill_items[element][2]))
+                    
+                else:
+                    # bill_items[item_name] = qty,price,amt,addbutton,removebutton
+                    self.bill_items[element] = [1,
+                    self.table_data[1][2],
+                    self.table_data[1][2],
+                    CTkLabel(master=self.mini_frame, text= element + ' (1) '+ str(self.table_data[1][2]),
+                    font=("Arial Black", 20), text_color="#2A8C55"),
+                    CTkButton(self.mini_frame, text=f"+",width= 30,command= lambda:(self.add_to_bill(element = element))),
+                    CTkButton(self.mini_frame, text=f"-",width= 30,command= lambda:(self.add_to_bill(element))
+                    )]
+                    self.bill_items[element][3].grid(row = len(self.bill_items) + 1,column = 0,padx= (20,0),pady= (5,0))
+                    self.bill_items[element][4].grid(row = len(self.bill_items) + 1,column = 2,padx=(10,0))
+                    self.bill_items[element][5].grid(row = len(self.bill_items) + 1,column = 3,padx=(5,5))
+            else :
+                self.bill_items[condition][0] -= 1
+                self.bill_items[condition][2] -= self.bill_items[condition][1]
+                self.bill_items[condition][3].configure(text=condition + f' ({self.bill_items[condition][0]}) '+ str(self.bill_items[condition][2]))
+                if self.bill_items[condition][0] <=0:
+                    self.bill_items[condition][3].destroy()
+                    self.bill_items[condition][4].destroy()
+                    self.bill_items[condition][5].destroy()
+                    self.bill_items.pop(condition) 
+    def bill_print(self):
+        if len(self.bill_items) != 0 :
+            with open('bill_new.txt', "w+",encoding = 'utf-8') as f:
+                f.write('''
+
+        Madinatain   Supermarket
+        TAX INVOICE الفاتورة الضريبية
+        TRN
+        Tel : +971 05x xxxxxxx
+
+    - - - - - - - - - - - - - - - - - - - - - - - - 
+    Sn    Description    Qty    Price       Amount
+    يكلف  سعر            كمية   وصف السلعة  الرقم
+                
+                ''')
+
+                total = 0
+                for index,key in enumerate(self.bill_items.keys()):
+                    f.write(f'\n    {index+1:<4}{key:<20}{self.bill_items[key][0]:<8}{self.bill_items[key][1]:<8}{self.bill_items[key][2]:<10}')
+                    total += self.bill_items[key][2]
+                f.write(f'''
+            \n    - - - - - - - - - - - - - - - - - - - - - - - - 
+            \n    Vat%  Net_Amt       Vat Net Amt  Amount
+            \n     5    {total:<14.2f}{total * 5 / 100:<14.2f}{total + total * 5 / 100:<14.2f}
+            \n    - - - - - - - - - - - - - - - - - - - - - - - - 
+            \n    Staff: 45
+            \n    - - - - - - - - - - - - - - - - - - - - - - - - 
+            \n    date: 2024-08-23  time: 20:36
+            \n    - - - - - - - - - - - - - - - - - - - - - - - - 
+            \n    ||||||||||||||||||||||
+            \n    ||||||||||||||||||||||
+                        ''')
+                    
     def update_bill(self):
         if self.prev != self.search.get():
             self.current = self.prev = self.search.get()
@@ -557,12 +623,9 @@ class display(Functions):
             self.table.destroy()
             self.table = CTkTable(master=self.table_frame, values=self.table_data, colors=["#191D32", "#282F44"], header_color="#2A8C55", hover_color="#030616",width = 100)
             self.table.pack( padx=(27,5), pady=5, side ='left')
-            # Add buttons next to each row in the table
-            # for index in range(1, len(self.table_data)):  # Start from 1 to skip header
-            button = CTkButton(self.table_frame, text=f"+",width= 30)
-            button.pack(padx=5,pady=100, side = 'left',anchor='n')  # Adjust column index as needed
 
-
+            button = CTkButton(self.table_frame, text=f"+",width= 30,command=lambda: self.add_to_bill(element = self.table_data[1][1]))
+            button.pack(padx=5,pady=100, side = 'left',anchor='n') 
         self.root.after(500,self.update_bill)  # Update every 1 second
     def settings_clicked(self):
         self.clear_frame(self.mainframe)
@@ -578,8 +641,6 @@ class display(Functions):
     
 
     def emp_search(self):
-        self.database = Functions("test_db")
-        self.database.create_database_if_not_exists()
         self.clear_frame(self.mainframe)
         title_frame = CTkFrame(master=self.mainframe, fg_color="transparent")
         title_frame.pack(anchor="n", fill="x",  padx=27, pady=(29, 0))
@@ -608,7 +669,6 @@ class display(Functions):
         CTkButton(master=metrics_frame, text="Remove Employees", text_color="#fff", font=("Arial Black", 15),fg_color= self.inter_widget_color,width=250, height=60,command = self.remove_employee).pack(side = 'left')
        
 
-#SEARCH BAR
 
         search_container = CTkFrame(master=self.mainframe, height=50, fg_color=self.secondary_widget_color)
         search_container.pack(fill="x", pady=(45, 0), padx=27)
@@ -633,8 +693,6 @@ class display(Functions):
         self.table.edit_row(0, text_color="#fff", hover_color="#2A8C55")
         self.table.pack(expand=True)
         self.update_entry('employee')
-
-
     def new_app(self):
         self.clear_frame(self.logn)
         self.logn.destroy()
@@ -643,7 +701,10 @@ class display(Functions):
         self.root.resizable(0,0)
         self.root.title('SuperMarket Management System')
         self.root.protocol('WM_DELETE_WINDOW',self.root.destroy)
+        self.database = Functions("test_db")
+        self.database.create_database_if_not_exists()
         Functions('test_db')
+
         theme = 'let'
         if theme == 'light':
             self.mainframe = CTkFrame(master=self.root, fg_color=self.widget_color,  width=820, height=650, corner_radius=0)
@@ -653,8 +714,6 @@ class display(Functions):
         self.mainframe.pack_propagate(0)
         self.mainframe.pack(side='right')
         self.mainframe.place(x= 212,y=10)
-
-
         self.sidebar_frame = CTkFrame(master=self.root, fg_color=self.widget_color,  width=206, height=650, corner_radius=0)
         self.sidebar_frame.pack_propagate(0)
         self.sidebar_frame.pack(fill="y", anchor="w", side="left")
