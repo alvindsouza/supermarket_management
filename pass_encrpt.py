@@ -42,7 +42,7 @@ def main():
     password = input('set pass:')
     encrypted, salt = encrypt(message, password)
     decrypted = decrypt(encrypted, password, salt)
-
+    print(encrypted, salt)
     print(f"message: {message}")
     print(f"encrypted: {encrypted}")
     print(f"decrypted: {decrypted}")

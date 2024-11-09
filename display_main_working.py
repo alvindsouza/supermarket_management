@@ -2,9 +2,12 @@ from customtkinter import *
 import tkinter
 from CTkTable import CTkTable
 from PIL import ImageTk,Image
+
 import csv
 import mysql.connector as ms
 import sys
+import os
+import time
 def CenterWindowToDisplay(Screen: CTk, width: int, height: int, scale_factor: float = 1.0):
     """Centers the window to the main display/monitor"""
     screen_width = Screen.winfo_screenwidth()
@@ -113,19 +116,24 @@ class display(Functions):
         self.logn  = CTk()
         self.logn.geometry(CenterWindowToDisplay(self.logn,600, 417))
 
-        set_appearance_mode("default")  # Modes: system (default), light, dark
+        set_appearance_mode("light")  # Modes: system (default), light, dark
       
+        self.text_color = '#4cc9f0'
+        
 
-        self.widget_color = '#2e3440'
-        self.float_color = '#d8dee9'#same as widget_color
         self.float_color = '#2f6690'
-        # self.button_color = '#3b4252'
-        self.button_color = 'transparent'
-        self.dttxt_color = '#1a1a1a' 
-        self.secondary_widget_color = '#36414c'
-        self.inter_widget_color = '#241d25'
+        self.dttxt_color = '#415a77' 
+        self.widget_color = '#415a77'
+        self.secondary_widget_color = '#2b2d42'
+        self.inter_widget_color = '#2b2d42'
+        self.table_hover_color = '#e4d9ff'
+        self.table_color_light = ('#191D32','#282F44')
+        self.table_color_dark = ('#89909f','#a9b4c2')
+        self.table_color_light = self.table_color_dark
+
         self.logn.title("Login")
         self.logn.resizable(0,0)
+        
         self.prev= ''
         self.current = ''
         self.cur_condition1=''
@@ -134,6 +142,16 @@ class display(Functions):
         self.prev_condition2=''
         self.run_search = None
         self.logn.protocol('WM_DELETE_WINDOW',self.logn.destroy)  
+    def dark_mode(self):
+        set_appearance_mode("dark")
+        self.table_hover_color = '#e4d9ff'
+        self.table_color_dark = ('#191D32','#282F44')
+        self.table_color_light = self.table_color_dark
+    def light_mode(self):
+        set_appearance_mode("light")
+        self.table_color_light = ('#89909f','#a9b4c2')
+        self.table_hover_color = '#a9d6e5'
+
     def clear_frame(self,frame):
         for wid in frame.winfo_children():
             wid.destroy()
@@ -210,6 +228,7 @@ class display(Functions):
                             writer = csv.writer(f)
                             writer.writerow([self.email.get(),a])
                         self.intial_login()
+    
     def remove_emp_sql(self):
         try:
     
@@ -308,10 +327,11 @@ class display(Functions):
     
     def inventory(self):
         self.clear_frame(self.mainframe)
+        self.prev = 'test'
         title_frame = CTkFrame(master=self.mainframe, fg_color="transparent")
         title_frame.pack(anchor="n", fill="x",  padx=27, pady=(29, 0))
 
-        CTkLabel(master=title_frame, text="Inventory", font=("Arial Black", 25), text_color="#2A8C55").pack(anchor="nw", side="left")
+        CTkLabel(master=title_frame, text="Inventory", font=("Arial Black", 25), text_color=self.text_color).pack(anchor="nw", side="left")
 
         metrics_frame = CTkFrame(master=self.mainframe, fg_color="transparent")
         metrics_frame.pack(anchor="n", fill="x",  padx=27, pady=(36, 0))
@@ -319,12 +339,12 @@ class display(Functions):
         search_container = CTkFrame(master=self.mainframe, height=50, fg_color=self.secondary_widget_color)
         search_container.pack(fill="x", pady=(45, 0), padx=27)
 
-        self.search = CTkEntry(master=search_container, width=305, placeholder_text="Search Products", border_color="#2A8C55")
+        self.search = CTkEntry(master=search_container, width=305, placeholder_text="Search Products", border_color=self.text_color)
         self.search.pack(side="left", padx=(13, 0), pady=15)
-        self.avail =  CTkComboBox(master=search_container, width=125,state= 'readonly',values=["Order by", "Expiry_Date", "Quantity","Product_Code"], button_color="#2A8C55", border_color="#2A8C55", button_hover_color="#207244",dropdown_hover_color="#207244" , dropdown_fg_color="#2A8C55", dropdown_text_color="#fff")
+        self.avail =  CTkComboBox(master=search_container, width=125,state= 'readonly',values=["Order by", "Expiry_Date", "Quantity","Product_Code"], button_color=self.text_color, border_color=self.text_color, button_hover_color="#207244",dropdown_hover_color="#207244" , dropdown_fg_color=self.text_color, dropdown_text_color="#fff")
         self.avail.set('Order by')
         self.avail.pack(side="left", padx=(13, 0), pady=15)
-        self.shift =  CTkComboBox(master=search_container, width=125,state= 'readonly', values=["Supplier Code", "S001", "S002","S003","S004","S005"], button_color="#2A8C55", border_color="#2A8C55", button_hover_color="#207244",dropdown_hover_color="#207244" , dropdown_fg_color="#2A8C55", dropdown_text_color="#fff")
+        self.shift =  CTkComboBox(master=search_container, width=125,state= 'readonly', values=["Supplier Code", "S001", "S002","S003","S004","S005"], button_color=self.text_color, border_color=self.text_color, button_hover_color="#207244",dropdown_hover_color="#207244" , dropdown_fg_color=self.text_color, dropdown_text_color="#fff")
         self.shift.set("Supplier Code")
         self.shift.pack(side="left", padx=(13, 0), pady=15)
         CTkButton(master=metrics_frame, text="Add Product", text_color="#fff", font=("Arial Black", 15),fg_color= self.inter_widget_color,width=250, height=60,command = self.add_product ).pack(side = 'left',padx=10)
@@ -335,8 +355,8 @@ class display(Functions):
         self.table_frame = CTkScrollableFrame(master=self.mainframe, fg_color="transparent")
         self.table_frame.pack(expand=True, fill="both", padx=20, pady=21)
         
-        self.table = CTkTable(master=self.table_frame, values=self.table_data, colors=["#191D32", "#282F44"], header_color="#2A8C55", hover_color="#030616")
-        self.table.edit_row(0, text_color="#fff", hover_color="#2A8C55")
+        self.table = CTkTable(master=self.table_frame, values=self.table_data, colors=self.table_color_light, header_color=self.widget_color, hover_color=self.table_hover_color)
+        self.table.edit_row(0, text_color="#fff", hover_color=self.text_color)
         self.table.pack(expand=True)
         self.update_entry(condition = 'product')
     def update_entry(self,condition): 
@@ -356,7 +376,7 @@ class display(Functions):
                 for product in self.database.fetch_inv((self.current,self.cur_condition1,self.cur_condition2)):
                     self.table_data.append(list(product))
             self.table.destroy()
-            self.table = CTkTable(master=self.table_frame, values=self.table_data, colors=["#191D32", "#282F44"], header_color="#2A8C55", hover_color="#030616")
+            self.table = CTkTable(master=self.table_frame, values=self.table_data, colors=self.table_color_light, header_color=self.text_color, hover_color=self.table_hover_color)
             self.table.pack(expand=True)
 
         self.run_search = self.root.after(500,lambda: self.update_entry(condition = condition))  # Update every 1 second
@@ -367,7 +387,7 @@ class display(Functions):
         self.new_win.title('Add Product')
         self.new_win.wm_transient(self.root)
         self.uni_frame = CTkFrame(master = self.new_win,fg_color = self.widget_color,corner_radius = 30)
-        CTkLabel(master=self.uni_frame, text="Add Product", font=("Arial Black", 25), text_color="#2A8C55").pack(anchor="nw", pady=(29,0), padx=27)
+        CTkLabel(master=self.uni_frame, text="Add Product", font=("Arial Black", 25), text_color=self.text_color).pack(anchor="nw", pady=(29,0), padx=27)
         
         grid = CTkFrame(master=self.uni_frame, fg_color="transparent")
         grid.pack(fill="both", padx=27, pady=(31,0))
@@ -399,7 +419,7 @@ class display(Functions):
         self.error = CTkLabel(master=grid,text="",font=("Arial Bold", 15),justify="left",anchor= 'w')
         self.error.grid(row=8, column=0)
 
-        CTkButton(master=self.uni_frame, text="Create", width=300, font=("Arial Bold", 17), hover_color="#207244", fg_color="#2A8C55", text_color="#fff",command= self.add_item_sql).pack(pady=(30,30))
+        CTkButton(master=self.uni_frame, text="Create", width=300, font=("Arial Bold", 17), hover_color="#207244", fg_color=self.text_color, text_color="#fff",command= self.add_item_sql).pack(pady=(30,30))
         self.uni_frame.pack()
    
     def add_item_sql(self):
@@ -421,7 +441,7 @@ class display(Functions):
         self.new_win.title('Add Employee')
         self.new_win.wm_transient(self.root)
         self.uni_frame = CTkFrame(master = self.new_win,fg_color = self.widget_color,corner_radius = 30)
-        CTkLabel(master=self.uni_frame, text="Add Employee", font=("Arial Black", 25), text_color="#2A8C55").pack(anchor="nw", pady=(29,0), padx=27)
+        CTkLabel(master=self.uni_frame, text="Add Employee", font=("Arial Black", 25), text_color=self.text_color).pack(anchor="nw", pady=(29,0), padx=27)
 
         CTkLabel(master=self.uni_frame, text="Employee Name", font=("Arial Bold", 17), text_color="#52A476").pack(anchor="nw", pady=(25,0), padx=27)
 
@@ -432,12 +452,12 @@ class display(Functions):
         grid.pack(fill="both", padx=27, pady=(31,0))
 
         CTkLabel(master=grid, text="Contract type", font=("Arial Bold", 17), text_color="#52A476", justify="left").grid(row=0, column=0, sticky="w")
-        self.con_type =  CTkComboBox(master=grid, width=125,state= 'readonly',values=["Contract Type",'full-time', 'part-time', 'contractor'], button_color="#2A8C55", border_color="#2A8C55", button_hover_color="#207244",dropdown_hover_color="#207244" , dropdown_fg_color="#2A8C55", dropdown_text_color="#fff")
+        self.con_type =  CTkComboBox(master=grid, width=125,state= 'readonly',values=["Contract Type",'full-time', 'part-time', 'contractor'], button_color=self.text_color, border_color=self.text_color, button_hover_color="#207244",dropdown_hover_color="#207244" , dropdown_fg_color=self.text_color, dropdown_text_color="#fff")
         self.con_type.set('Contract Type')
         self.con_type.grid(row=3, column=0 ,sticky="w",pady=5)
 
         CTkLabel(master=grid, text="Shift Type", font=("Arial Bold", 17), text_color="#52A476", justify="left").grid(row=0, column=1, sticky="w",padx = (150,250))
-        self.shift_type =  CTkComboBox(master=grid, width=125,state= 'readonly', values=["Shift", "Morning", "Evening", "Night"], button_color="#2A8C55", border_color="#2A8C55", button_hover_color="#207244",dropdown_hover_color="#207244" , dropdown_fg_color="#2A8C55", dropdown_text_color="#fff")
+        self.shift_type =  CTkComboBox(master=grid, width=125,state= 'readonly', values=["Shift", "Morning", "Evening", "Night"], button_color=self.text_color, border_color=self.text_color, button_hover_color="#207244",dropdown_hover_color="#207244" , dropdown_fg_color=self.text_color, dropdown_text_color="#fff")
         self.shift_type.set("Shift")
         self.shift_type.grid(row=3, column=1 , sticky="w",pady=5,padx = 150)
         CTkLabel(master=grid, text="Salary", font=("Arial Bold", 17), text_color="#52A476", justify="left").grid(row=0, column=2, sticky="w")
@@ -448,7 +468,7 @@ class display(Functions):
         actions= CTkFrame(master=self.uni_frame, fg_color="transparent")
         actions.pack(fill="both")
 
-        CTkButton(master=actions, text="Create", width=300, font=("Arial Bold", 17), hover_color="#207244", fg_color="#2A8C55", text_color="#fff",command= self.add_employee_sql).pack(pady=(30,30))
+        CTkButton(master=actions, text="Create", width=300, font=("Arial Bold", 17), hover_color="#207244", fg_color=self.text_color, text_color="#fff",command= self.add_employee_sql).pack(pady=(30,30))
         self.uni_frame.pack()
     def remove_product(self):
         self.new_win = CTkToplevel(self.root)
@@ -459,9 +479,9 @@ class display(Functions):
         self.new_win.wm_transient(self.root)
         self.uni_frame = CTkFrame(master = self.new_win,fg_color = self.widget_color,corner_radius = 30, width=250)
         self.uni_frame.pack(padx=(10,10),pady=(10,10),fill="y")
-        # self.manage_employee_button.configure(fg_color='#fff', text_color="#2A8C55", hover_color="#eee")  
+        # self.manage_employee_button.configure(fg_color='#fff', text_color=self.text_color, hover_color="#eee")  
 
-        CTkLabel(master=self.uni_frame, text="Remove Product", font=("Arial Black", 25), text_color="#2A8C55").pack(anchor="nw", pady=(29,0), padx=27)
+        CTkLabel(master=self.uni_frame, text="Remove Product", font=("Arial Black", 25), text_color=self.text_color).pack(anchor="nw", pady=(29,0), padx=27)
 
         CTkLabel(master=self.uni_frame, text="Product ID", font=("Arial Bold", 17), text_color="#52A476").pack(anchor="nw", pady=(25,0), padx=27)
 
@@ -470,7 +490,7 @@ class display(Functions):
         self.error = CTkLabel(master=self.uni_frame,text="",font=("Arial Bold", 15),justify="left",anchor= 'w')
         self.error.pack(anchor="w", padx=(25, 0),pady=(20,5))
 
-        CTkButton(master=self.uni_frame, text="Remove", width=300, font=("Arial Bold", 17), hover_color="#207244", fg_color="#2A8C55", text_color="#fff",command = self.remove_prod_sql).pack(anchor="s",pady=(5,20), padx=(100,100))
+        CTkButton(master=self.uni_frame, text="Remove", width=300, font=("Arial Bold", 17), hover_color="#207244", fg_color=self.text_color, text_color="#fff",command = self.remove_prod_sql).pack(anchor="s",pady=(5,20), padx=(100,100))
     
     def remove_employee(self):
         self.new_win = CTkToplevel(self.root)
@@ -481,9 +501,9 @@ class display(Functions):
         self.new_win.wm_transient(self.root)
         self.uni_frame = CTkFrame(master = self.new_win,fg_color = self.widget_color,corner_radius = 30, width=250)
         self.uni_frame.pack(padx=(10,10),pady=(10,10),fill="y")
-        # self.manage_employee_button.configure(fg_color='#fff', text_color="#2A8C55", hover_color="#eee")  
+        # self.manage_employee_button.configure(fg_color='#fff', text_color=self.text_color, hover_color="#eee")  
 
-        CTkLabel(master=self.uni_frame, text="Delete Employee", font=("Arial Black", 25), text_color="#2A8C55").pack(anchor="nw", pady=(29,0), padx=27)
+        CTkLabel(master=self.uni_frame, text="Delete Employee", font=("Arial Black", 25), text_color=self.text_color).pack(anchor="nw", pady=(29,0), padx=27)
 
         CTkLabel(master=self.uni_frame, text="Employee ID", font=("Arial Bold", 17), text_color="#52A476").pack(anchor="nw", pady=(25,0), padx=27)
 
@@ -492,7 +512,7 @@ class display(Functions):
         self.error = CTkLabel(master=self.uni_frame,text="",font=("Arial Bold", 15),justify="left",anchor= 'w')
         self.error.pack(anchor="w", padx=(25, 0),pady=(20,5))
 
-        CTkButton(master=self.uni_frame, text="Remove", width=300, font=("Arial Bold", 17), hover_color="#207244", fg_color="#2A8C55", text_color="#fff",command = self.remove_emp_sql).pack(anchor="s",pady=(5,20), padx=(100,100))
+        CTkButton(master=self.uni_frame, text="Remove", width=300, font=("Arial Bold", 17), hover_color="#207244", fg_color=self.text_color, text_color="#fff",command = self.remove_emp_sql).pack(anchor="s",pady=(5,20), padx=(100,100))
     def refresh(self,condition): 
         if condition == "employee":
             self.table_data = [['employee_id','employee_name', 'employee_type', 'employee_availability', 'employee_shift_type', 'employee_pay']
@@ -504,7 +524,7 @@ class display(Functions):
             for product in self.database.fetch_inv((self.current,self.cur_condition1,self.cur_condition2)):
                 self.table_data.append(list(product))
         self.table.destroy()
-        self.table = CTkTable(master=self.table_frame, values=self.table_data, colors=["#191D32", "#282F44"], header_color="#2A8C55", hover_color="#030616")
+        self.table = CTkTable(master=self.table_frame, values=self.table_data, colors=self.table_color_light, header_color=self.text_color, hover_color=self.table_hover_color)
         self.table.pack(expand=True)
     def billing(self):
         self.bill_items={}
@@ -517,7 +537,7 @@ class display(Functions):
         title_frame.pack(anchor="n", fill="x",  padx=(27,0), pady=(29, 0))
         
 
-        CTkLabel(master=title_frame, text="Billing", font=("Arial Black", 25), text_color="#2A8C55").pack(anchor="nw", side="left")
+        CTkLabel(master=title_frame, text="Billing", font=("Arial Black", 25), text_color=self.text_color).pack(anchor="nw", side="left")
         CTkButton(title_frame, text="Add Bill",width= 200,height = 30,command = self.bill_print).pack(anchor="ne", side="right",padx=100,fill = 'y',pady = 10)
         search_box = CTkFrame(master=self.mainframe, height=500,width = 350,fg_color="transparent")
         search_box.pack(expand=True,side ='left',anchor = 'w',pady=(45, 0),padx=(27,0))
@@ -525,7 +545,7 @@ class display(Functions):
         search_container = CTkFrame(master=search_box, height=50,width = 20,fg_color=self.secondary_widget_color)
         search_container.pack(anchor = 'w',pady=(45, 0))
 
-        self.search = CTkEntry(master=search_container, width=350, placeholder_text="Search Products", border_color="#2A8C55")
+        self.search = CTkEntry(master=search_container, width=350, placeholder_text="Search Products", border_color=self.text_color)
         self.search.pack(anchor ='w', padx=13, pady=15)      
         self.table_data = [
             ['Product_Code ', 'Product_Name','Price']
@@ -540,7 +560,7 @@ class display(Functions):
         # self.mini_frame.grid_propagate(False)
       
         
-        CTkLabel(master=self.mini_frame, text="Bill Counter", font=("Arial Black", 25), text_color="#2A8C55").grid(row = 0 ,column = 0,padx= 20,pady= (20,0))
+        CTkLabel(master=self.mini_frame, text="Bill Counter", font=("Arial Black", 25), text_color=self.text_color).grid(row = 0 ,column = 0,padx= 20,pady= (20,0))
         
         self.mini_frame.pack(expand=True,anchor='nw',side = 'left',padx=(0,27),fill='both')
         
@@ -562,7 +582,7 @@ class display(Functions):
                     self.table_data[1][2],
                     self.table_data[1][2],
                     CTkLabel(master=self.mini_frame, text= element + ' (1) '+ str(self.table_data[1][2]),
-                    font=("Arial Black", 20), text_color="#2A8C55"),
+                    font=("Arial Black", 20), text_color=self.text_color),
                     CTkButton(self.mini_frame, text=f"+",width= 30,command= lambda:(self.add_to_bill(element = element))),
                     CTkButton(self.mini_frame, text=f"-",width= 30,command= lambda:(self.add_to_bill(element))
                     )]
@@ -579,6 +599,9 @@ class display(Functions):
                     self.bill_items[condition][5].destroy()
                     self.bill_items.pop(condition) 
     def bill_print(self):
+        self.root.after_cancel(self.run_search)
+        self.bill_sql()
+        
         if len(self.bill_items) != 0 :
             with open('bill_new.txt', "w+",encoding = 'utf-8') as f:
                 f.write('''
@@ -603,14 +626,22 @@ class display(Functions):
             \n    Vat%  Net_Amt       Vat Net Amt  Amount
             \n     5    {total:<14.2f}{total * 5 / 100:<14.2f}{total + total * 5 / 100:<14.2f}
             \n    - - - - - - - - - - - - - - - - - - - - - - - - 
-            \n    Staff: 45
-            \n    - - - - - - - - - - - - - - - - - - - - - - - - 
             \n    date: 2024-08-23  time: 20:36
             \n    - - - - - - - - - - - - - - - - - - - - - - - - 
             \n    ||||||||||||||||||||||
             \n    ||||||||||||||||||||||
                         ''')
-                    
+        os.startfile('bill_new.txt')            
+    def bill_sql(self):
+        for key in self.bill_items:
+            try :
+                
+                self.database.cursor.execute(f'update product set Quantity = Quantity - {self.bill_items[key][0]} where product_name = "{key}";')
+                self.database.db.commit()
+            except: 
+                print('error')
+                self.database.db.rollback()
+                pass
     def update_bill(self):
         if self.prev != self.search.get():
             self.current = self.prev = self.search.get()
@@ -621,31 +652,38 @@ class display(Functions):
             for index,product in enumerate(self.database.fetch_inv((self.current,'Order by','Supplier Code' ))):
                 self.table_data.append([product[0],product[1],product[3]])
             self.table.destroy()
-            self.table = CTkTable(master=self.table_frame, values=self.table_data, colors=["#191D32", "#282F44"], header_color="#2A8C55", hover_color="#030616",width = 100)
+            self.table = CTkTable(master=self.table_frame, values=self.table_data, colors=self.table_color_light, header_color=self.text_color, hover_color=self.table_hover_color,width = 100)
             self.table.pack( padx=(27,5), pady=5, side ='left')
 
             button = CTkButton(self.table_frame, text=f"+",width= 30,command=lambda: self.add_to_bill(element = self.table_data[1][1]))
             button.pack(padx=5,pady=100, side = 'left',anchor='n') 
-        self.root.after(500,self.update_bill)  # Update every 1 second
+        self.run_search = self.root.after(500,self.update_bill)  # Update every 1 second
     def settings_clicked(self):
         self.clear_frame(self.mainframe)
 
-        CTkLabel(master=self.mainframe, text="Settings", font=("Arial Black", 25), text_color="#2A8C55").pack(anchor="nw", pady=(29,0), padx=27)
-        grid = CTkFrame(master=self.mainframe, fg_color=self.inter_widget_color)
+        CTkLabel(master=self.mainframe, text="Settings", font=("Arial Black", 25), text_color=self.text_color).pack(anchor="nw", pady=(29,0), padx=27)
+        grid = CTkFrame(master=self.mainframe, fg_color=self.widget_color)
         grid.pack(fill="both", padx=(30,650), pady=(20,100))
         status_var = tkinter.IntVar(value=0)
-        CTkLabel(master=grid, text="Theme", font=("Arial Bold", 17), text_color="#52A476").grid(row=1, column=0, sticky="w",padx=10, pady=(10,0))
-        CTkRadioButton(master=grid, variable=status_var, value=0, text="Light", font=("Arial Bold", 14), text_color="#52A476", fg_color="#52A476", border_color="#52A476", hover_color="#207244").grid(row=3, column=0, sticky="w",padx=15, pady=(16,0))
-        CTkRadioButton(master=grid, variable=status_var, value=1,text="Dark", font=("Arial Bold", 14), text_color="#52A476", fg_color="#52A476", border_color="#52A476", hover_color="#207244").grid(row=4, column=0, sticky="w",padx=15 ,pady=(16,10))
+        CTkLabel(master=grid, text="Theme", font=("Arial Bold", 17), text_color=self.text_color).grid(row=1, column=0, sticky="w",padx=10, pady=(10,0))
+        CTkRadioButton(master=grid, variable=status_var, value=0, text="Light", font=("Arial Bold", 14), text_color=self.text_color, fg_color=self.text_color, border_color=self.text_color, hover_color="#207244",command = self.light_mode).grid(row=3, column=0, sticky="w",padx=15, pady=(16,0))
+        CTkRadioButton(master=grid, variable=status_var, value=1,text="Dark", font=("Arial Bold", 14), text_color=self.text_color, fg_color=self.text_color, border_color=self.text_color, hover_color="#207244",command = self.dark_mode).grid(row=4, column=0, sticky="w",padx=15 ,pady=(16,10))
         
     
 
     def emp_search(self):
-        self.clear_frame(self.mainframe)
+        print('test')
+        for wid in self.mainframe.winfo_children():
+            print(wid)
+            wid.destroy()
+        self.prev = 'test'
+        time.sleep(1)
+        for wid in self.mainframe.winfo_children():
+            print(wid)
         title_frame = CTkFrame(master=self.mainframe, fg_color="transparent")
         title_frame.pack(anchor="n", fill="x",  padx=27, pady=(29, 0))
 
-        CTkLabel(master=title_frame, text="Employees", font=("Arial Black", 25), text_color="#2A8C55").pack(anchor="nw", side="left")
+        CTkLabel(master=title_frame, text="Employees", font=("Arial Black", 25), text_color=self.text_color).pack(anchor="nw", side="left")
 
         metrics_frame = CTkFrame(master=self.mainframe, fg_color="transparent")
         metrics_frame.pack(anchor="n", fill="x",  padx=27, pady=(36, 0))
@@ -673,12 +711,12 @@ class display(Functions):
         search_container = CTkFrame(master=self.mainframe, height=50, fg_color=self.secondary_widget_color)
         search_container.pack(fill="x", pady=(45, 0), padx=27)
 
-        self.search = CTkEntry(master=search_container, width=305, placeholder_text="Search Employee", border_color="#2A8C55", border_width=2)
+        self.search = CTkEntry(master=search_container, width=305, placeholder_text="Search Employee", border_color=self.text_color, border_width=2)
         self.search.pack(side="left", padx=(13, 0), pady=15)
-        self.avail =  CTkComboBox(master=search_container, width=125,state= 'readonly',values=["Availability", "Available", "Unavailable"], button_color="#2A8C55", border_color="#2A8C55", border_width=2, button_hover_color="#207244",dropdown_hover_color="#207244" , dropdown_fg_color="#2A8C55", dropdown_text_color="#fff")
+        self.avail =  CTkComboBox(master=search_container, width=125,state= 'readonly',values=["Availability", "Available", "Unavailable"], button_color=self.text_color, border_color=self.text_color, border_width=2, button_hover_color="#207244",dropdown_hover_color="#207244" , dropdown_fg_color=self.text_color, dropdown_text_color="#fff")
         self.avail.set('Availability')
         self.avail.pack(side="left", padx=(13, 0), pady=15)
-        self.shift =  CTkComboBox(master=search_container, width=125,state= 'readonly', values=["Shift", "Morning", "Evening", "Night"], button_color="#2A8C55", border_color="#2A8C55", border_width=2, button_hover_color="#207244",dropdown_hover_color="#207244" , dropdown_fg_color="#2A8C55", dropdown_text_color="#fff")
+        self.shift =  CTkComboBox(master=search_container, width=125,state= 'readonly', values=["Shift", "Morning", "Evening", "Night"], button_color=self.text_color, border_color=self.text_color, border_width=2, button_hover_color="#207244",dropdown_hover_color="#207244" , dropdown_fg_color=self.text_color, dropdown_text_color="#fff")
         self.shift.set("Shift")
         self.shift.pack(side="left", padx=(13, 0), pady=15)
 
@@ -689,8 +727,8 @@ class display(Functions):
         self.table_frame = CTkScrollableFrame(master=self.mainframe, fg_color="transparent")
         self.table_frame.pack(expand=True, fill="both", padx=20, pady=21)
         
-        self.table = CTkTable(master=self.table_frame, values=self.table_data, colors=["#191D32", "#282F44"], header_color="#2A8C55", hover_color="#030616")
-        self.table.edit_row(0, text_color="#fff", hover_color="#2A8C55")
+        self.table = CTkTable(master=self.table_frame, values=self.table_data, colors=self.table_color_light, header_color=self.text_color, hover_color=self.table_hover_color)
+        self.table.edit_row(0, text_color="#fff", hover_color=self.text_color)
         self.table.pack(expand=True)
         self.update_entry('employee')
     def new_app(self):
@@ -721,35 +759,34 @@ class display(Functions):
 
         person_img_data = Image.open("images/person_icon.png")
         person_img = CTkImage(dark_image=person_img_data, light_image=person_img_data, size=(60, 60))
-        CTkButton(master=self.sidebar_frame, image=person_img, text="Account", fg_color=self.button_color, font=("Arial Bold", 20), hover_color=self.float_color, anchor="w",corner_radius=30,width=180).pack(anchor="center", ipady=5, pady=(16, 0))
+        CTkButton(master=self.sidebar_frame, image=person_img, text="Account", fg_color='transparent', font=("Arial Bold", 20), hover_color=self.float_color, anchor="w",corner_radius=30,width=180).pack(anchor="center", ipady=5, pady=(16, 0))
         analytics_img_data = Image.open("images/analytics_icon.png")
         analytics_img = CTkImage(dark_image=analytics_img_data, light_image=analytics_img_data)
 
-        CTkButton(master=self.sidebar_frame, image=analytics_img, text="", fg_color=self.button_color, font=("Arial Bold", 14), hover_color=self.float_color, anchor="w",width=180).pack(anchor="center", ipady=5, pady=(60, 0))
-
+        
         package_img_data = Image.open("images/package_icon.png")
         package_img = CTkImage(dark_image=package_img_data, light_image=package_img_data)
-        self.order_button = CTkButton(master=self.sidebar_frame, image=package_img, text="Employees", fg_color=self.button_color, font=("Arial Bold", 14), hover_color=self.float_color, anchor="w",width=180,command=lambda: (self.emp_search,self.refresh('employee')))
+        self.order_button = CTkButton(master=self.sidebar_frame, image=package_img, text="Employees", fg_color='transparent', font=("Arial Bold", 14), hover_color=self.float_color, anchor="w",width=180,command=self.emp_search)
         self.order_button.pack(anchor="center", ipady=5, pady=(16, 0))
 
         list_img_data = Image.open("images/list_icon.png")
         list_img = CTkImage(dark_image=list_img_data, light_image=list_img_data)
-        self.billing_button = CTkButton(master=self.sidebar_frame, image=list_img, text="Billing", fg_color=self.button_color, font=("Arial Bold", 14), hover_color=self.float_color, anchor="w",width=180,command=self.billing)
+        self.billing_button = CTkButton(master=self.sidebar_frame, image=list_img, text="Billing", fg_color='transparent', font=("Arial Bold", 14), hover_color=self.float_color, anchor="w",width=180,command=self.billing)
         self.billing_button.pack(anchor="center", ipady=5, pady=(16, 0))
         returns_img_data = Image.open("images/returns_icon.png")
         returns_img = CTkImage(dark_image=returns_img_data, light_image=returns_img_data)
-        CTkButton(master=self.sidebar_frame, image=returns_img, text="Inventory", fg_color=self.button_color, font=("Arial Bold", 14), hover_color=self.float_color, anchor="w",width=180,command= self.inventory).pack(anchor="center", ipady=5, pady=(16, 0))
+        CTkButton(master=self.sidebar_frame, image=returns_img, text="Inventory", fg_color='transparent', font=("Arial Bold", 14), hover_color=self.float_color, anchor="w",width=180,command= self.inventory).pack(anchor="center", ipady=5, pady=(16, 0))
 
         settings_img_data = Image.open("images/settings_icon.png")
         settings_img = CTkImage(dark_image=settings_img_data, light_image=settings_img_data)
-        self.settings_button = CTkButton(master=self.sidebar_frame, image=settings_img, text="Settings", fg_color=self.button_color, font=("Arial Bold", 14), hover_color=self.float_color, anchor="w",width=180,command=self.settings_clicked)
+        self.settings_button = CTkButton(master=self.sidebar_frame, image=settings_img, text="Settings", fg_color='transparent', font=("Arial Bold", 14), hover_color=self.float_color, anchor="w",width=180,command=self.settings_clicked)
         self.settings_button.pack(anchor="center", ipady=5, pady=(16, 0))
         self.emp_search()
         self.root.mainloop()
     
     def run (self) :
-        # self.intial_login()
-        # self.logn.mainloop()
+        self.intial_login()
+        self.logn.mainloop()
 
         self.new_app()
 display().run()
