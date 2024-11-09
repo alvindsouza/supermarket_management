@@ -2,7 +2,7 @@ from customtkinter import *
 import tkinter
 from CTkTable import CTkTable
 from PIL import ImageTk,Image
-
+from datetime import date,datetime
 import csv
 import mysql.connector as ms
 import sys
@@ -163,7 +163,6 @@ class display(Functions):
                 if row[0] == self.log_email.get():
                     found = True
                     if row[1] == self.log_password.get():
-                        print('login sucessful')
                         self.new_app()
                     else:
                         self.error.configure(text="*Password entered \n is incorrect", text_color="#d11149", anchor="w", justify="left", font=("Arial Bold", 15))
@@ -204,7 +203,6 @@ class display(Functions):
         CTkButton(master=self.frame, text="Create Account", fg_color='#3b4252', hover_color='#2f6690', font=("Arial Bold", 12), text_color="#ffffff", width=225,command=self.create_account).pack(anchor="w", pady=(20, 0), padx=(25, 0))
     def check_pass(self):
             a,b =self.password.get(),self.confim_password.get()
-            print(a,b)
             if '@' not in self.email.get():
                 self.error.configure(text="*Enter Valid Email", text_color="#d11149", anchor="w", justify="left", font=("Arial Bold", 15))
             elif a != b:
@@ -501,8 +499,6 @@ class display(Functions):
         self.new_win.wm_transient(self.root)
         self.uni_frame = CTkFrame(master = self.new_win,fg_color = self.widget_color,corner_radius = 30, width=250)
         self.uni_frame.pack(padx=(10,10),pady=(10,10),fill="y")
-        # self.manage_employee_button.configure(fg_color='#fff', text_color=self.text_color, hover_color="#eee")  
-
         CTkLabel(master=self.uni_frame, text="Delete Employee", font=("Arial Black", 25), text_color=self.text_color).pack(anchor="nw", pady=(29,0), padx=27)
 
         CTkLabel(master=self.uni_frame, text="Employee ID", font=("Arial Bold", 17), text_color="#52A476").pack(anchor="nw", pady=(25,0), padx=27)
@@ -556,8 +552,6 @@ class display(Functions):
         self.table_frame.pack(expand=True,anchor= 'w',side = 'left',fill='both')
         
         self.mini_frame = CTkFrame(master=self.mainframe, height=450,fg_color=self.secondary_widget_color) 
-        # self.mini_frame.pack_propagate(False) 
-        # self.mini_frame.grid_propagate(False)
       
         
         CTkLabel(master=self.mini_frame, text="Bill Counter", font=("Arial Black", 25), text_color=self.text_color).grid(row = 0 ,column = 0,padx= 20,pady= (20,0))
@@ -626,7 +620,7 @@ class display(Functions):
             \n    Vat%  Net_Amt       Vat Net Amt  Amount
             \n     5    {total:<14.2f}{total * 5 / 100:<14.2f}{total + total * 5 / 100:<14.2f}
             \n    - - - - - - - - - - - - - - - - - - - - - - - - 
-            \n    date: 2024-08-23  time: 20:36
+            \n    date: {date.today().strftime('%d/%m/%Y')}  time: {datetime.now().strftime('%H:%M:%S')}
             \n    - - - - - - - - - - - - - - - - - - - - - - - - 
             \n    ||||||||||||||||||||||
             \n    ||||||||||||||||||||||
@@ -639,7 +633,6 @@ class display(Functions):
                 self.database.cursor.execute(f'update product set Quantity = Quantity - {self.bill_items[key][0]} where product_name = "{key}";')
                 self.database.db.commit()
             except: 
-                print('error')
                 self.database.db.rollback()
                 pass
     def update_bill(self):
@@ -672,14 +665,8 @@ class display(Functions):
     
 
     def emp_search(self):
-        print('test')
-        for wid in self.mainframe.winfo_children():
-            print(wid)
-            wid.destroy()
+        self.clear_frame(self.mainframe)
         self.prev = 'test'
-        time.sleep(1)
-        for wid in self.mainframe.winfo_children():
-            print(wid)
         title_frame = CTkFrame(master=self.mainframe, fg_color="transparent")
         title_frame.pack(anchor="n", fill="x",  padx=27, pady=(29, 0))
 
